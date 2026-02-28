@@ -1,4 +1,12 @@
 steps:
+  - name: golang:1.25
+    id: Test
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        go mod download
+        go test ./... -v
   - name: gcr.io/k8s-skaffold/pack
     args:
       - build
