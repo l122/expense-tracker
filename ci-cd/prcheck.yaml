@@ -1,0 +1,23 @@
+steps:
+  - name: golang:1.25
+    id: Download-Deps
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        go mod download
+
+  - name: golang:1.25
+    id: Run-Tests
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        go test ./... -v -race -count=1
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+tags:
+  - pr-check
+  - go-tests
