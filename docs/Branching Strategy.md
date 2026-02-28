@@ -14,7 +14,7 @@
 
 ## Case scenarios
 
-### A developer needs to add a new feature
+### 1. A developer needs to add a new feature
 
 - They pull the latest changes from the remote branch dev into the local repository
 
@@ -32,7 +32,7 @@
 
 - Merge the PR and enjoy the success :)
 
-### A developer needs to fix a bug only, no refactoring, no new feature
+### 2. A developer needs to fix a bug only, no refactoring, no new feature
 
 - They pull the latest changes from the remote branch dev into the local repository
 
@@ -46,7 +46,7 @@
 
 - Merge the PR and enjoy the success :)
 
-### A developer needs to refactor existing code
+### 2. A developer needs to refactor existing code
 
 - They pull the latest changes from the remote branch dev into the local repository
 
