@@ -1,18 +1,25 @@
 steps:
   - name: golang:1.25
-    id: Download-Deps
+    id: Test
     entrypoint: bash
     args:
       - -c
       - |
+        set -e
+
+        echo "Downloading modules..."
         go mod download
 
-  - name: golang:1.25
-    id: Run-Tests
-    entrypoint: bash
-    args:
-      - -c
-      - |
+        echo "Installing templ..."
+        go install github.com/a-h/templ/cmd/templ@latest
+
+        # Ensure Go bin is in PATH
+        export PATH="$PATH:$(go env GOPATH)/bin"
+
+        echo "Generating templ files..."
+        templ generate
+
+        echo "Running tests..."
         go test ./... -v -race -count=1
 
 options:
