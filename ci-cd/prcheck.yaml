@@ -13,9 +13,6 @@ steps:
         echo "Installing templ..."
         go install github.com/a-h/templ/cmd/templ@latest
 
-        # Ensure Go bin is in PATH
-        export PATH="$PATH:$(go env GOPATH)/bin"
-
         echo "Generating templ files..."
         templ generate
 
