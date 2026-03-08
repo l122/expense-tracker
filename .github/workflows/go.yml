@@ -22,6 +22,9 @@ jobs:
     - name: Display Go version
       run: go version
 
+    - name: Install templ
+      run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
+
     - name: Generate templ files
       run: templ generate
 
