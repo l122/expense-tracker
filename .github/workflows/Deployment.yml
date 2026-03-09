@@ -31,7 +31,7 @@ jobs:
         filter: blob:none # exclude file contents for faster checkout
 
     - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@v1.75.0
+      uses: anothrNick/github-tag-action@1.75.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
         WITH_V: true
@@ -76,7 +76,7 @@ jobs:
 
     - name: Minor version for each merge
       id: taggerFinal
-      uses: anothrNick/github-tag-action@v1.75.0
+      uses: anothrNick/github-tag-action@1.75.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
