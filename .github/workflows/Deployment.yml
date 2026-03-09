@@ -18,7 +18,7 @@ on:
 concurrency: production
 
 jobs:
-  if_merged:
+  Update:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
@@ -31,6 +31,7 @@ jobs:
         filter: blob:none # exclude file contents for faster checkout
 
     - name: Bump version and push tag
+      id: taggerDryRun
       uses: anothrNick/github-tag-action@1.75.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
@@ -64,15 +65,15 @@ jobs:
     - name: Generate templ files
       run: templ generate
 
+    - name: Test
+      run: go test -v ./...
+
     - name: Build
       run: |
         VERSION="${{ steps.taggerDryRun.outputs.new_tag }}"
         COMMIT_SHA="${{ github.sha }}"
         BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
         go build -ldflags="-X 'main.Version=$VERSION' -X 'main.CommitSHA=$COMMIT_SHA' -X 'main.BuildDate=$BUILD_DATE'" -v ./...
-
-    - name: Test
-      run: go test -v ./...
 
     - name: Minor version for each merge
       id: taggerFinal
