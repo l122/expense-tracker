@@ -45,7 +45,7 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 
 func main() {
 
-	// Debug: figure out how to display it on the main page
+	// Debug: figure out how to display it on the main page.
 	log.Printf("AppVersion: %v", AppVersion)
 	log.Printf("CommitSHA: %v", CommitSHA)
 	log.Printf("BuildDate: %v", BuildDate)
