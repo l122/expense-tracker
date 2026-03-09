@@ -3,9 +3,9 @@ name: PR check
 on:
   pull_request:
     types:
-      - opened
+      - closed
     branches:
-      - 'main'
+      - main
     paths:
       - '**.go'
       - '**.mod'
@@ -16,8 +16,8 @@ on:
       - '**.js'
 
 jobs:
-
-  build:
+  if_merged:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
