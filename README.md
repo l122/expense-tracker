@@ -13,7 +13,7 @@ Run build make command with tests
 make all
 ```
 
-Build the application
+Install dependencies and build the application
 ```bash
 make build
 ```
