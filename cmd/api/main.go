@@ -45,6 +45,7 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 
 func main() {
 
+	// Debug
 	log.Printf("AppVersion: %v", AppVersion)
 	log.Printf("CommitSHA: %v", CommitSHA)
 	log.Printf("BuildDate: %v", BuildDate)
