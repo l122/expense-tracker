@@ -36,9 +36,9 @@ jobs:
     - name: Generate templ files
       run: templ generate
 
-    - name: Test
-      run: go test -v ./...
-      
     - name: Build
       run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
 
