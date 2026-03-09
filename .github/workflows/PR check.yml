@@ -1,8 +1,19 @@
 name: PR check
 
 on:
-  push:
-    branches: [ "git-actions" ]
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'main'
+    paths:
+      - '**.go'
+      - '**.mod'
+      - '**.sum'
+      - '**.templ'
+      - '**.html'
+      - '**.css'
+      - '**.js'
 
 jobs:
 
