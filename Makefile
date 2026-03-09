@@ -7,7 +7,7 @@ templ-install:
 		; \
 	} else { \
 		Write-Output 'Installing templ...'; \
-		go install github.com/a-h/templ/cmd/templ@latest; \
+		go install github.com/a-h/templ/cmd/templ@v0.3.1001; \
 		if (-not (Get-Command templ -ErrorAction SilentlyContinue)) { \
 			Write-Output 'templ installation failed. Exiting...'; \
 			exit 1; \
