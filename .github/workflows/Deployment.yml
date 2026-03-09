@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build, Test and Deploy
 
 on:
   pull_request:
@@ -7,13 +7,13 @@ on:
     branches:
       - main
     paths:
-      - '**.go'
-      - '**.mod'
-      - '**.sum'
-      - '**.templ'
-      - '**.html'
-      - '**.css'
-      - '**.js'
+      - "**.go"
+      - "**.mod"
+      - "**.sum"
+      - "**.templ"
+      - "**.html"
+      - "**.css"
+      - "**.js"
 
 concurrency: production
 
@@ -24,60 +24,60 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0    # fetch all history
-        filter: blob:none # exclude file contents for faster checkout
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # fetch all history
+          filter: blob:none # exclude file contents for faster checkout
 
-    - name: Bump version and push tag
-      id: taggerDryRun
-      uses: anothrNick/github-tag-action@1.75.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
-        WITH_V: false
-        PRERELEASE: false
-        DRY_RUN: true
+      - name: Bump version and push tag
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
+          PRERELEASE: false
+          DRY_RUN: true
 
-    - name: echo new tag
-      run: |
-        echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+      - name: echo new tag
+        run: |
+          echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
 
-    - name: echo tag
-      run: |
-        echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+      - name: echo tag
+        run: |
+          echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
 
-    - name: echo part
-      run: |
-        echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
+      - name: echo part
+        run: |
+          echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
 
-    - name: Set up Go
-      uses: actions/setup-go@v6.3.0
-      with:
-        go-version-file: 'go.mod'
+      - name: Set up Go
+        uses: actions/setup-go@v6.3.0
+        with:
+          go-version-file: "go.mod"
 
-    - name: Display Go version
-      run: go version
+      - name: Display Go version
+        run: go version
 
-    - name: Install templ
-      run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
 
-    - name: Generate templ files
-      run: templ generate
+      - name: Generate templ files
+        run: templ generate
 
-    - name: Build
-      run: |
-      VERSION="${{ steps.taggerDryRun.outputs.new_tag }}"
-      COMMIT_SHA="${{ github.sha }}"
-      BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
-      go build -ldflags="-X 'main.Version=$VERSION' -X 'main.CommitSHA=$COMMIT_SHA' -X 'main.BuildDate=$BUILD_DATE'" -v ./...
+      - name: Build
+        run: |
+          VERSION="${{ steps.taggerDryRun.outputs.new_tag }}"
+          COMMIT_SHA="${{ github.sha }}"
+          BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
+          go build -ldflags="-X 'main.Version=$VERSION' -X 'main.CommitSHA=$COMMIT_SHA' -X 'main.BuildDate=$BUILD_DATE'" -v ./...
 
-    - name: Test
+      - name: Test
         run: go test -v ./...
 
-    - name: Minor version for each merge
-      id: taggerFinal
-      uses: anothrNick/github-tag-action@1.75.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: false
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
