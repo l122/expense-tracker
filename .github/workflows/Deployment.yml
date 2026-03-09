@@ -81,3 +81,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: false
+
+      - name: Create GitHub Release
+        run: |
+          TAG=${{ steps.taggerFinal.outputs.new_tag }}
+          gh release create "$TAG" \
+            --title "$TAG" \
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
