@@ -42,11 +42,11 @@ jobs:
       run: |
         echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
 
-        - name: echo tag
+    - name: echo tag
       run: |
         echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
 
-        - name: echo part
+    - name: echo part
       run: |
         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
 
@@ -65,7 +65,11 @@ jobs:
       run: templ generate
 
     - name: Build
-      run: go build -v ./...
+      run: |
+        VERSION="${{ steps.taggerDryRun.outputs.new_tag }}"
+        COMMIT_SHA="${{ github.sha }}"
+        BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
+        go build -ldflags="-X 'main.Version=$VERSION' -X 'main.CommitSHA=$COMMIT_SHA' -X 'main.BuildDate=$BUILD_DATE'" -v ./...
 
     - name: Test
       run: go test -v ./...
