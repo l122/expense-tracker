@@ -91,7 +91,7 @@ jobs:
         run: |
           pwd
           ls -la
-          ls -la cmd || true
+          find . -maxdepth 3 -type f -name "*.go"
 
       ################################################
       # BUILD BINARY
