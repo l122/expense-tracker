@@ -1,22 +1,26 @@
 name: Build, Test and Deploy
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
-      - test
-  # pull_request:
-  #   types:
-  #     - closed
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "**.go"
-  #     - "**.mod"
-  #     - "**.sum"
-  #     - "**.templ"
-  #     - "**.html"
-  #     - "**.css"
-  #     - "**.js"
+      - main
+    paths:
+      - "**.go"
+      - "**.mod"
+      - "**.sum"
+      - "**.templ"
+      - "**.html"
+      - "**.css"
+      - "**.js"
+
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: "Skip test suite"
+        type: boolean
+        default: false
 
 concurrency: production
 
