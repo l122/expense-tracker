@@ -105,7 +105,7 @@ jobs:
             -ldflags="-X 'main.Version=$VERSION' \
                       -X 'main.CommitSHA=$COMMIT_SHA' \
                       -X 'main.BuildDate=$BUILD_DATE'" \
-            -o main ./cmd/app
+            -o main ./cmd/api
 
       ########################################
       # TESTS
