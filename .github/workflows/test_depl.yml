@@ -1,0 +1,160 @@
+name: CI/CD
+
+on:
+    #     pull_request:
+    #         branches: [main]
+
+    push:
+        branches: [none]
+
+env:
+    PROJECT_ID: expense-tracker-481402
+    REGION: europe-west1
+    SERVICE: expense-tracker
+    REPOSITORY: cloud-run
+    IMAGE: europe-west1-docker.pkg.dev/expense-tracker-481402/cloud-run/expense-tracker
+
+concurrency: production
+
+jobs:
+    ########################################
+    # PR TESTS
+    ########################################
+
+    test:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - uses: actions/setup-go@v6
+              with:
+                  go-version-file: go.mod
+
+            - name: Install templ
+              run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
+
+            - name: Generate templates
+              run: templ generate
+
+            - name: Run tests
+              run: go test -v -race ./...
+
+    ########################################
+    # BUILD + RELEASE + DEPLOY
+    ########################################
+
+    release:
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
+
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+
+            ################################################
+            # VERSION
+            ################################################
+
+            - name: Calculate next version
+              id: tagger
+              uses: anothrNick/github-tag-action@1.75.0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  WITH_V: false
+
+            ################################################
+            # SETUP GO
+            ################################################
+
+            - uses: actions/setup-go@v6
+              with:
+                  go-version-file: go.mod
+
+            - name: Install templ
+              run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
+
+            - name: Generate templ files
+              run: templ generate
+
+            ################################################
+            # BUILD BINARY
+            ################################################
+
+            - name: Build
+              run: |
+                  VERSION=${{ steps.tagger.outputs.new_tag }}
+                  COMMIT_SHA=${{ github.sha }}
+                  BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+                  go build \
+                    -ldflags="-X 'main.Version=$VERSION' \
+                              -X 'main.CommitSHA=$COMMIT_SHA' \
+                              -X 'main.BuildDate=$BUILD_DATE'" \
+                    -o app ./cmd/app
+
+            ################################################
+            # CREATE RELEASE
+            ################################################
+
+            - name: Create GitHub Release
+              run: |
+                  TAG=${{ steps.tagger.outputs.new_tag }}
+                  gh release create "$TAG" --generate-notes
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            ################################################
+            # AUTH GOOGLE CLOUD
+            ################################################
+
+            - name: Authenticate to GCP
+              uses: google-github-actions/auth@v2
+              with:
+                  workload_identity_provider: ${{ secrets.GCP_WORKLOAD_ID_PROVIDER }}
+                  service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+            - name: Setup gcloud
+              uses: google-github-actions/setup-gcloud@v2
+
+            ################################################
+            # BUILD CONTAINER
+            ################################################
+
+            - name: Configure Docker auth
+              run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+            - name: Build container
+              run: |
+                  TAG=${{ steps.tagger.outputs.new_tag }}
+
+                  docker build \
+                    -t $IMAGE:$TAG \
+                    -t $IMAGE:latest \
+                    .
+
+            - name: Push container
+              run: |
+                  TAG=${{ steps.tagger.outputs.new_tag }}
+
+                  docker push $IMAGE:$TAG
+                  docker push $IMAGE:latest
+
+            ################################################
+            # DEPLOY CLOUD RUN
+            ################################################
+
+            - name: Deploy to Cloud Run
+              run: |
+                  TAG=${{ steps.tagger.outputs.new_tag }}
+
+                  gcloud run deploy $SERVICE \
+                    --image $IMAGE:$TAG \
+                    --region $REGION \
+                    --platform managed \
+                    --allow-unauthenticated
