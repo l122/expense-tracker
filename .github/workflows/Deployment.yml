@@ -4,19 +4,19 @@ on:
   push:
     branches:
       - test
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
-    paths:
-      - "**.go"
-      - "**.mod"
-      - "**.sum"
-      - "**.templ"
-      - "**.html"
-      - "**.css"
-      - "**.js"
+  # pull_request:
+  #   types:
+  #     - closed
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "**.go"
+  #     - "**.mod"
+  #     - "**.sum"
+  #     - "**.templ"
+  #     - "**.html"
+  #     - "**.css"
+  #     - "**.js"
 
 concurrency: production
 
