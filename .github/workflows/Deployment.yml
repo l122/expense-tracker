@@ -86,6 +86,13 @@ jobs:
       - name: Generate templ files
         run: templ generate
 
+      ####### DEBUG
+      - name: Show repo structure
+        run: |
+          pwd
+          ls -la
+          ls -la cmd || true
+
       ################################################
       # BUILD BINARY
       ################################################
