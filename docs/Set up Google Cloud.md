@@ -15,7 +15,7 @@ gcloud auth login
 1. Set variables for future use
 
 ```
-set PROJECT_ID=<my-projct-id>
+set PROJECT_ID=<my-project-id>
 ```
 
 ```
