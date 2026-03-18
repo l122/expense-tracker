@@ -141,8 +141,8 @@ jobs:
   deploy:
     needs: Build-and-test
     runs-on: ubuntu-latest
-    env:
-      CLOUDSDK_CORE_PROJECT: ${{ env.PROJECT_ID }}
+    # env:
+    #   CLOUDSDK_CORE_PROJECT: ${{ env.PROJECT_ID }}
 
     permissions:
       contents: read
@@ -162,11 +162,10 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_ID_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Set GCP project
-        run: gcloud config set project ${{ env.PROJECT_ID }}
-
-      - name: Debug GCP config
+      - name: Force correct GCP project
         run: |
+          export CLOUDSDK_CORE_PROJECT=${{ env.PROJECT_ID }}
+          gcloud config set project ${{ env.PROJECT_ID }}
           gcloud config list
 
       - name: Setup gcloud
