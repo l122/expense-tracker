@@ -162,12 +162,6 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_ID_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Force correct GCP project
-        run: |
-          export CLOUDSDK_CORE_PROJECT=${{ env.PROJECT_ID }}
-          gcloud config set project ${{ env.PROJECT_ID }}
-          gcloud config list
-
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
@@ -194,6 +188,11 @@ jobs:
           # Push latest
           docker push $IMAGE:latest
 
+      - name: Force correct GCP project
+        run: |
+          gcloud config set project ${{ env.PROJECT_ID }}
+          gcloud config list
+
       ################################################
       # DEPLOY
       ################################################
@@ -204,6 +203,7 @@ jobs:
 
           gcloud run deploy ${{ env.SERVICE }} \
             --image $IMAGE:$TAG \
+            --project ${{ env.PROJECT_ID }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated
