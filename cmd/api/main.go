@@ -14,6 +14,9 @@ var (
 
 func version(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hello\n")
+	fmt.Fprintf(w, "AppVersion: %v\n", AppVersion)
+	fmt.Fprintf(w, "CommitSHA: %v\n", CommitSHA)
+	fmt.Fprintf(w, "BuildDate: %v\n", BuildDate)
 }
 
 func main() {
