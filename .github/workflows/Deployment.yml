@@ -15,21 +15,38 @@ on:
       - "**.css"
       - "**.js"
 
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: "Skip test suite"
+        type: boolean
+        default: false
+
+env:
+  PROJECT_ID: expense-tracker-481402
+  REGION: europe-west1
+  SERVICE: expense-tracker
+
 concurrency: production
 
 jobs:
-  Update:
+  Build-and-test:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.taggerFinal.outputs.new_tag }}
     permissions:
       contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0 # fetch all history
-          filter: blob:none # exclude file contents for faster checkout
 
+      ################################################
+      # VERSION
+      ################################################
       - name: Bump version and push tag
         id: taggerDryRun
         uses: anothrNick/github-tag-action@1.75.0
@@ -51,6 +68,9 @@ jobs:
         run: |
           echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
 
+      ################################################
+      # SETUP GO
+      ################################################
       - name: Set up Go
         uses: actions/setup-go@v6.3.0
         with:
@@ -65,23 +85,46 @@ jobs:
       - name: Generate templ files
         run: templ generate
 
+      ####### DEBUG
+      - name: Show repo structure
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 3 -type f -name "*.go"
+
+      ################################################
+      # BUILD BINARY
+      ################################################
       - name: Build
         run: |
           VERSION="${{ steps.taggerDryRun.outputs.new_tag }}"
           COMMIT_SHA="${{ github.sha }}"
           BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
-          go build -ldflags="-X 'main.Version=$VERSION' -X 'main.CommitSHA=$COMMIT_SHA' -X 'main.BuildDate=$BUILD_DATE'" -v ./...
+          go build \
+            -ldflags="-X 'main.Version=$VERSION' \
+                      -X 'main.CommitSHA=$COMMIT_SHA' \
+                      -X 'main.BuildDate=$BUILD_DATE'" \
+            -o main ./cmd/api
 
+      ########################################
+      # TESTS
+      ########################################
       - name: Test
         run: go test -v ./...
 
-      - name: Minor version for each merge
+      ################################################
+      # Update VERSION
+      ################################################
+      - name: Update version
         id: taggerFinal
         uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: false
 
+      ################################################
+      # CREATE RELEASE
+      ################################################
       - name: Create GitHub Release
         run: |
           TAG=${{ steps.taggerFinal.outputs.new_tag }}
@@ -89,3 +132,73 @@ jobs:
             --title "$TAG" \
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ################################################
+  # DEPLOY CLOUD RUN
+  ################################################
+  deploy:
+    needs: Build-and-test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      ################################################
+      # AUTH GOOGLE CLOUD
+      ################################################
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_ID_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      - name: Debug tag
+        run: echo TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+
+      ################################################
+      # BUILD & PUSH IMAGE
+      ################################################
+      - name: Build and Push image
+        run: |-
+          IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
+          TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+
+          docker build -t $IMAGE:$TAG .
+
+          docker push $IMAGE:$TAG
+
+          docker tag $IMAGE:$TAG $IMAGE:latest
+
+          # Push latest
+          docker push $IMAGE:latest
+
+      ################################################
+      # DEPLOY
+      ################################################
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
+          TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image $IMAGE:$TAG \
+            --project ${{ env.PROJECT_ID }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated
+
+      - name: Show output
+        run: |
+          echo "Service URL: ${{ steps.deploy.outputs.url }}"
