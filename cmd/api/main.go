@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	AppVersion = "dev-version" // Default to 'dev' if not set
+	AppVersion = "dev" // Default to 'dev' if not set
 	CommitSHA  = "commit-sha-not-set"
 	BuildDate  = "build-date"
 )
