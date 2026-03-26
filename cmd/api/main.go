@@ -8,8 +8,8 @@ import (
 
 var (
 	AppVersion = "dev" // Default to 'dev' if not set
-	CommitSHA  = "n/a"
-	BuildDate  = "n/a"
+	CommitSHA  = "commit-sha"
+	BuildDate  = "build-date"
 )
 
 func version(w http.ResponseWriter, r *http.Request) {
