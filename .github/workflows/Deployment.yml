@@ -193,6 +193,7 @@ jobs:
       # DEPLOY
       ################################################
       - name: Deploy to Cloud Run
+        id: deploy
         run: |
           IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
           TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
@@ -203,7 +204,7 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$BUILD_DATE"
 
       - name: Show output
         run: |
