@@ -34,7 +34,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.taggerFinal.outputs.new_tag }}
+      tag: ${{ steps.taggerFinal.outputs.tag }}
     permissions:
       contents: write
 
@@ -197,6 +197,7 @@ jobs:
         run: |
           IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
           TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
           gcloud run deploy ${{ env.SERVICE }} \
             --image $IMAGE:$TAG \
