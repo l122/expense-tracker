@@ -101,7 +101,7 @@ jobs:
           COMMIT_SHA="${{ github.sha }}"
           BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
           go build \
-            -ldflags="-X 'main.Version=$VERSION' \
+            -ldflags="-X 'main.AppVersion=$VERSION' \
                       -X 'main.CommitSHA=$COMMIT_SHA' \
                       -X 'main.BuildDate=$BUILD_DATE'" \
             -o main ./cmd/api
