@@ -174,8 +174,13 @@ jobs:
         run: |-
           IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
           TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-          docker build -t $IMAGE:$TAG .
+          docker build \
+            --build-arg APP_VERSION="$TAG" \
+            --build-arg COMMIT_SHA="${{ github.sha }}" \
+            --build-arg BUILD_DATE="$BUILD_DATE" \
+            -t $IMAGE:$TAG .
 
           docker push $IMAGE:$TAG
 
@@ -197,7 +202,8 @@ jobs:
             --project ${{ env.PROJECT_ID }} \
             --region ${{ env.REGION }} \
             --platform managed \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
       - name: Show output
         run: |
