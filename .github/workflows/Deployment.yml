@@ -2,7 +2,7 @@ name: Build, Test and Deploy
 
 on:
   push:
-    branches: [test]
+    branches: [pipeline]
   pull_request:
     types:
       - closed
