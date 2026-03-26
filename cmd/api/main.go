@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 )
 
 var (
@@ -9,6 +11,10 @@ var (
 	CommitSHA  = "n/a"
 	BuildDate  = "n/a"
 )
+
+func version(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello\n")
+}
 
 func main() {
 
@@ -19,4 +25,7 @@ func main() {
 
 	log.Println("Creating server")
 
+	http.HandleFunc("/", version)
+
+	http.ListenAndServe(":8080", nil)
 }
