@@ -1,0 +1,79 @@
+/* Base styles and mobile-first approach */
+:root {
+    --primary-color: #2563eb;
+    --bg-color: #f8fafc;
+    --text-color: #1e293b;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Simulator view: limitless background centering the context window */
+body {
+    background-color: #1e293b; 
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+}
+
+/* Context window fixed to mobile resolution */
+.container {
+    width: 1080px;
+    height: 2400px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 80px 60px;
+    box-sizing: border-box;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+h1 {
+    font-size: 96px;
+    text-align: center;
+    margin-bottom: 100px;
+    font-weight: 800;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 80px;
+    border-radius: 48px;
+    border: 4px solid var(--border-color);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card p {
+    font-size: 44px;
+    margin-bottom: 48px;
+    line-height: 1.4;
+}
+
+strong {
+    color: #64748b;
+    display: block;
+    margin-bottom: 10px;
+}
