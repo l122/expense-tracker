@@ -2,12 +2,8 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"strconv"
 
-	"github.com/joho/godotenv"
 	"github.com/l122/expense-tracker/internal/config"
 )
 
@@ -16,22 +12,15 @@ type Server struct {
 	config *config.Config
 }
 
-func NewServer(config *config.Config) *http.Server {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
+func NewServer(cfg *config.Config) *http.Server {
+	port := config.GetConfigValue("PORT")
+	if port == 0 {
+		port = 8080
 	}
-
-	portStr := os.Getenv("PORT")
-	if portStr == "" {
-		portStr = "8080"
-	}
-
-	port, _ := strconv.Atoi(portStr)
 
 	NewServer := &Server{
 		port:   port,
-		config: config,
+		config: cfg,
 	}
 
 	server := &http.Server{
