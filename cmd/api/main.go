@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,9 +10,6 @@ var (
 	AppVersion = "dev" // Default to 'dev' if not set
 	CommitSHA  = "commit-sha-not-set"
 	BuildDate  = "build-date"
-
-	//go:embed *.gohtml
-	templates embed.FS
 )
 
 func main() {
@@ -23,12 +19,12 @@ func main() {
 	log.Printf("CommitSHA: %v", CommitSHA)
 	log.Printf("BuildDate: %v", BuildDate)
 
-	tmpl, err := template.ParseFS(templates, "*.gohtml")
+	templates, err := template.ParseFS(Files, "*.gohtml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	hander, err := NewHandler(NewIndexView(tmpl))
+	hander, err := NewHandler(NewIndexView(templates))
 	if err != nil {
 		log.Fatal(err)
 	}
