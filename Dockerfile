@@ -28,6 +28,8 @@ FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 COPY --from=builder /app/app .
+# Copy the .env file from the builder stage to the runtime stage
+COPY --from=builder /app/.env .
 
 EXPOSE 8080
 
