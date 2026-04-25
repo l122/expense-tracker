@@ -1,9 +1,9 @@
 package main
 
 import (
-	"html/template"
 	"log"
-	"net/http"
+
+	"github.com/l122/expense-tracker/internal/server"
 )
 
 var (
@@ -19,17 +19,8 @@ func main() {
 	log.Printf("CommitSHA: %v", CommitSHA)
 	log.Printf("BuildDate: %v", BuildDate)
 
-	templates, err := template.ParseFS(Files, "*.gohtml")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	hander, err := NewHandler(NewIndexView(templates))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := http.ListenAndServe(":8080", hander); err != nil {
+	server := server.NewServer()
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
