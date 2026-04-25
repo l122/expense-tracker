@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/l122/expense-tracker/internal/config"
 	"github.com/l122/expense-tracker/internal/server"
 )
 
@@ -13,13 +14,13 @@ var (
 )
 
 func main() {
+	cfg := &config.Config{
+		AppVersion: AppVersion,
+		CommitSHA:  CommitSHA,
+		BuildDate:  BuildDate,
+	}
 
-	// Debug: figure out how to display it on the main page
-	log.Printf("AppVersion: %v", AppVersion)
-	log.Printf("CommitSHA: %v", CommitSHA)
-	log.Printf("BuildDate: %v", BuildDate)
-
-	server := server.NewServer()
+	server := server.NewServer(cfg)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

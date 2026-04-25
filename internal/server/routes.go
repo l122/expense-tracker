@@ -19,7 +19,7 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	templates := web.ParseTemplates()
 
-	router.Handle("/", web.NewIndexHandler(web.NewIndexView(templates))).Methods(http.MethodGet)
+	router.Handle("/", web.NewIndexHandler(web.NewIndexView(templates, s.config))).Methods(http.MethodGet)
 
 	return handler
 }

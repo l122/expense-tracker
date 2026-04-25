@@ -8,13 +8,15 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+	"github.com/l122/expense-tracker/internal/config"
 )
 
 type Server struct {
-	port int
+	port   int
+	config *config.Config
 }
 
-func NewServer() *http.Server {
+func NewServer(config *config.Config) *http.Server {
 	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -28,7 +30,8 @@ func NewServer() *http.Server {
 	port, _ := strconv.Atoi(portStr)
 
 	NewServer := &Server{
-		port: port,
+		port:   port,
+		config: config,
 	}
 
 	server := &http.Server{
