@@ -5,17 +5,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Expense Tracker</h1>
-        <div class="card">
-            <p><strong>App Version:</strong> {{.AppVersion}}</p>
-            <p><strong>Commit SHA:</strong> {{.CommitSHA}}</p>
-            <p><strong>Build Date:</strong> {{.BuildDate}}</p>
+    <!-- Bootstrap Offcanvas Trigger -->
+    <button class="menu-toggle border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="2.5em" height="2.5em" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+        </svg>
+    </button>
+
+    <!-- Bootstrap Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+        <div class="offcanvas-header border-bottom">
+            <h2 class="offcanvas-title h1" id="offcanvasMenuLabel">Menu</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="accordion accordion-flush" id="menuAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fs-2" type="button" data-bs-toggle="collapse" data-bs-target="#aboutCollapse">
+                            About
+                        </button>
+                    </h2>
+                    <div id="aboutCollapse" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="card bg-light p-4 border-0">
+                                <p class="fs-6 mb-2"><strong>Version:</strong> {{.AppVersion}}</p>
+                                <p class="fs-6 mb-2"><strong>Commit:</strong> {{.CommitSHA}}</p>
+                                <p class="fs-6 mb-0"><strong>Build:</strong> {{.BuildDate}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Main Content Area -->
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-5">Expense Tracker</h1>
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <p class="fs-6 text-muted">Dashboard coming soon...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 {{end}}
