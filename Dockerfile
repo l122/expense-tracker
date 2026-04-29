@@ -13,9 +13,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go install github.com/a-h/templ/cmd/templ@v0.3.1001
-RUN templ generate
-
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags="-s -w \
     -X 'main.AppVersion=${APP_VERSION}' \
