@@ -5,12 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <h1> Expense Tracker </h1>
-    <label>AppVersion: {{.AppVersion}}</label>
-    <label>CommitSHA: {{.CommitSHA}}</label>
-    <label>BuildDate: {{.BuildDate}}</label>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <div class="card">
+            <p><strong>App Version:</strong> {{.AppVersion}}</p>
+            <p><strong>Commit SHA:</strong> {{.CommitSHA}}</p>
+            <p><strong>Build Date:</strong> {{.BuildDate}}</p>
+        </div>
+    </div>
 </body>
 </html>
 {{end}}
