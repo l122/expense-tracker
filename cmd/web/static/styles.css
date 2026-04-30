@@ -33,16 +33,14 @@ body {
   margin: 0;
 }
 
-/* Context window fixed to mobile resolution */
+/* Context window with responsive constraints */
 .container {
-  width: 1080px;
-  height: 2400px;
+  width: 100%;
+  min-height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-color);
-  padding: 80px 60px;
+  padding: 2rem 1.5rem;
   box-sizing: border-box;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border-radius: 24px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -51,16 +49,16 @@ body {
 }
 
 h1 {
-  font-size: 96px;
+  font-size: 3rem;
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: 3rem;
   font-weight: 800;
 }
 
 .card {
   background: var(--card-bg);
-  padding: 80px;
-  border-radius: 48px;
+  padding: 2rem;
+  border-radius: 1.5rem;
   border: 4px solid var(--border-color);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
@@ -70,8 +68,8 @@ h1 {
 }
 
 .card p {
-  font-size: 44px;
-  margin-bottom: 48px;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
   line-height: 1.4;
 }
 
@@ -83,19 +81,55 @@ strong {
 
 .menu-toggle {
   position: fixed;
-  top: 40px;
-  left: 40px;
+  top: 1rem;
+  left: 1rem;
   cursor: pointer;
   z-index: 1001;
-  padding: 20px;
-  font-size: 64px;
+  padding: 1rem;
+  font-size: 2rem;
   background: none;
   color: var(--text-color);
 }
 
-/* Bootstrap Overrides for Simulator Scaling */
+/* Bootstrap Overrides for Responsiveness */
 .offcanvas {
-  width: 600px !important;
+  width: 100% !important;
+}
+
+/* Desktop / Simulator View */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1080px;
+    padding: 80px 60px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    margin: 40px 0;
+  }
+
+  h1 {
+    font-size: 96px;
+    margin-bottom: 100px;
+  }
+
+  .card {
+    padding: 80px;
+    border-radius: 48px;
+  }
+
+  .card p {
+    font-size: 44px;
+    margin-bottom: 48px;
+  }
+
+  .menu-toggle {
+    top: 40px;
+    left: 40px;
+    font-size: 64px;
+  }
+
+  .offcanvas {
+    width: 600px !important;
+  }
 }
 .btn-close {
   width: 3em;
