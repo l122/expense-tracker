@@ -6,11 +6,12 @@ import (
 	"log"
 )
 
-//go:embed *.gohtml
+//go:embed features/*/*.gohtml
 var Files embed.FS
 
 func ParseTemplates() *template.Template {
-	templates, err := template.ParseFS(Files, "*.gohtml")
+	// Add patterns for the root directory and feature subdirectories
+	templates, err := template.ParseFS(Files, "features/*/*.gohtml")
 	if err != nil {
 		log.Fatal(err)
 	}
