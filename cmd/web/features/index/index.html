@@ -9,40 +9,7 @@
     <link rel="stylesheet" href="/static/css/pages/index.css">
 </head>
 <body>
-    <!-- Bootstrap Offcanvas Trigger -->
-    <button class="menu-toggle border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
-        <svg xmlns="http://www.w3.org/2000/svg" width="2.5em" height="2.5em" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-        </svg>
-    </button>
-
-    <!-- Bootstrap Offcanvas Menu -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-        <div class="offcanvas-header border-bottom">
-            <h2 class="offcanvas-title h1" id="offcanvasMenuLabel">Menu</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="accordion accordion-flush" id="menuAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed fs-2" type="button" data-bs-toggle="collapse" data-bs-target="#aboutCollapse">
-                            About
-                        </button>
-                    </h2>
-                    <div id="aboutCollapse" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <div class="card bg-light p-4 border-0">
-                                <p class="fs-6 mb-2"><strong>Version:</strong> 1.0.0-mock</p>
-                                <p class="fs-6 mb-2"><strong>Commit:</strong> a1b2c3d4e5f6</p>
-                                <p class="fs-6 mb-0"><strong>Build:</strong> 2023-10-27</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{template "left_drawer" .}}
 
     <!-- Main Content Area -->
     <div class="container py-5">
