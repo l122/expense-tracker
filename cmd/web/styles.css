@@ -45,24 +45,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-}
-
-.menu-toggle {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  cursor: pointer;
-  z-index: 1001;
-  padding: 1rem;
-  font-size: 2rem;
-  background: none;
-  color: var(--text-color);
-}
-
-/* Bootstrap Overrides for Responsiveness */
-.offcanvas {
-  width: 100% !important;
 }
 
 /* Desktop / Simulator View */
@@ -74,18 +56,4 @@ body {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     margin: 40px 0;
   }
-
-  .menu-toggle {
-    top: 40px;
-    left: 40px;
-    font-size: 64px;
-  }
-
-  .offcanvas {
-    width: 600px !important;
-  }
-}
-.btn-close {
-  width: 3em;
-  height: 3em;
 }
