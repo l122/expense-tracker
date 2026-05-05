@@ -5,7 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/l122/expense-tracker/cmd/web"
-	features "github.com/l122/expense-tracker/cmd/web/features/index"
+	admin "github.com/l122/expense-tracker/cmd/web/features/admin"
+	index "github.com/l122/expense-tracker/cmd/web/features/index"
 )
 
 type Handler struct {
@@ -20,7 +21,8 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	templates := web.ParseTemplates()
 
-	router.Handle("/", features.NewIndexHandler(features.NewIndexView(templates, s.config))).Methods(http.MethodGet)
+	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates, s.config))).Methods(http.MethodGet)
+	router.Handle("/admin", admin.NewAdminHandler(admin.NewAdminView(templates))).Methods(http.MethodGet)
 
 	return handler
 }

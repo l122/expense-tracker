@@ -1,0 +1,60 @@
+{{define "admin"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Management</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .admin-container { padding: 20px; font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background-color: #f4f4f4; font-weight: bold; }
+        tr:hover { background-color: #f9f9f9; }
+        .role-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; text-transform: uppercase; }
+        .role-admin { background-color: #d1e7dd; color: #0f5132; }
+        .role-user { background-color: #e2e3e5; color: #41464b; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>User Management</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User Name</th>
+                    <th>User Email</th>
+                    <th>User ID</th>
+                    <th>User Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Alice Johnson</td>
+                    <td>alice.johnson@example.com</td>
+                    <td>usr_982341</td>
+                    <td><span class="role-badge role-admin">admin</span></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Bob Smith</td>
+                    <td>bob.smith@provider.net</td>
+                    <td>usr_441209</td>
+                    <td><span class="role-badge role-user">user</span></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Charlie Davis</td>
+                    <td>charlie.d@service.org</td>
+                    <td>usr_112233</td>
+                    <td><span class="role-badge role-user">user</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+{{end}}
