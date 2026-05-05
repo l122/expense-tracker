@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/l122/expense-tracker/cmd/web"
-	admin "github.com/l122/expense-tracker/cmd/web/features/admin"
-	index "github.com/l122/expense-tracker/cmd/web/features/index"
+	"github.com/l122/expense-tracker/cmd/web/features/admin"
+	"github.com/l122/expense-tracker/cmd/web/features/index"
 )
 
 type Handler struct {
