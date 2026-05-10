@@ -16,7 +16,7 @@ func NewAdminView(templ *template.Template) *AdminView {
 }
 
 func (i *AdminView) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "admin", nil); err != nil {
+	if err := i.templ.ExecuteTemplate(w, "admin.html", nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
