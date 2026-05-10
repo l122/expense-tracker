@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{template "head" "About"}}
+
+<body>
+
+    {{template "left_drawer"}}
+    <h1 class="display-3 fw-bold mb-5">About</h1>
+    <div class="card bg-light p-4 border-0">
+        <p class="fs-6 mb-2"><strong>Version:</strong> {{.AppVersion}}</p>
+        <p class="fs-6 mb-2"><strong>Commit:</strong> {{.CommitSHA}}</p>
+        <p class="fs-6 mb-0"><strong>Build:</strong> {{.BuildDate}}</p>
+    </div>
+
+</body>
+
+</html>
