@@ -20,7 +20,7 @@ func NewIndexView(templ *template.Template, conf *config.Config) *IndexView {
 }
 
 func (i *IndexView) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "index", i.config); err != nil {
+	if err := i.templ.ExecuteTemplate(w, "index.html", i.config); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

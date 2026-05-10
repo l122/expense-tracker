@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed styles.css features components
+//go:embed features components
 var Files embed.FS
 
 func ParseTemplates() *template.Template {
