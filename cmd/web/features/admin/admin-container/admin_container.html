@@ -12,13 +12,13 @@
             </tr>
         </thead>
         <tbody>
-            {{range $index, $element := .}}
+            {{range .}}
             <tr>
-                <th scope="row">{{$index}}</th>
-                <td>{{$element.Name}}/td>
-                <td>{{$element.Email}}</td>
-                <td>{{$element.Username}}</td>
-                <td>{{$element.Role}}</span></td>
+                <th scope="row">{{.Index}}</th>
+                <td>{{.Name}}</td>
+                <td>{{.Email}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Role}}</td>
             </tr>
             {{end}}
         </tbody>
