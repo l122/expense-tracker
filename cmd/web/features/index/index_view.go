@@ -1,26 +1,22 @@
-package web
+package index
 
 import (
 	"html/template"
 	"net/http"
-
-	"github.com/l122/expense-tracker/internal/config"
 )
 
 type IndexView struct {
-	templ  *template.Template
-	config *config.Config
+	templ *template.Template
 }
 
-func NewIndexView(templ *template.Template, conf *config.Config) *IndexView {
+func NewIndexView(templ *template.Template) *IndexView {
 	return &IndexView{
-		templ:  templ,
-		config: conf,
+		templ: templ,
 	}
 }
 
 func (i *IndexView) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "index", i.config); err != nil {
+	if err := i.templ.ExecuteTemplate(w, "index.html", nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

@@ -1,0 +1,27 @@
+{{define "admin_container"}}
+<div class="admin-container py-5">
+    <h1 class="display-3 fw-bold mb-5">User Management</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">User Name</th>
+                <th scope="col">User Email</th>
+                <th scope="col">User ID</th>
+                <th scope="col">User Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .}}
+            <tr>
+                <th scope="row">{{.Index}}</th>
+                <td>{{.Name}}</td>
+                <td>{{.Email}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Role}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{end}}

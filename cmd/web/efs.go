@@ -8,18 +8,18 @@ import (
 	"strings"
 )
 
-//go:embed styles.css features components
+//go:embed features components
 var Files embed.FS
 
 func ParseTemplates() *template.Template {
 	var filenames []string
 
-	// Recursively walk the embedded filesystem to find all .gohtml files
+	// Recursively walk the embedded filesystem to find all .html files
 	err := fs.WalkDir(Files, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && strings.HasSuffix(path, ".gohtml") {
+		if !d.IsDir() && strings.HasSuffix(path, ".html") {
 			filenames = append(filenames, path)
 		}
 		return nil
