@@ -5,11 +5,14 @@ import (
 	"net/http"
 
 	"github.com/l122/expense-tracker/internal/config"
+	"github.com/l122/expense-tracker/internal/database"
 )
 
 type Server struct {
 	port   int
 	config *config.Config
+
+	db database.Service
 }
 
 func NewServer(cfg *config.Config) *http.Server {
@@ -21,6 +24,7 @@ func NewServer(cfg *config.Config) *http.Server {
 	NewServer := &Server{
 		port:   port,
 		config: cfg,
+		db:     database.New(),
 	}
 
 	server := &http.Server{
