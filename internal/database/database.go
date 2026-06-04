@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Service represents a service that interacts with a database.
@@ -28,10 +29,8 @@ type service struct {
 	db *sql.DB
 }
 
-var (
-	dburl      = os.Getenv("BLUEPRINT_DB_URL")
-	dbInstance *service
-)
+var dbInstance *service
+var dburl string
 
 func New() Service {
 	// Reuse Connection
@@ -39,7 +38,20 @@ func New() Service {
 		return dbInstance
 	}
 
-	db, err := sql.Open("sqlite3", dburl)
+	dburl = os.Getenv("BLUEPRINT_DB_URL")
+	if dburl == "" {
+		dburl = "expenses.db"
+	}
+
+	// Ensure the directory for the database file exists
+	dir := filepath.Dir(dburl)
+	if dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			log.Fatalf("failed to create database directory: %v", err)
+		}
+	}
+
+	db, err := sql.Open("sqlite", dburl)
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
@@ -65,7 +77,7 @@ func (s *service) Health() map[string]string {
 	if err != nil {
 		stats["status"] = "down"
 		stats["error"] = fmt.Sprintf("db down: %v", err)
-		log.Fatalf("db down: %v", err) // Log the error and terminate the program
+		log.Printf("db down: %v", err) // Log the error without terminating the program
 		return stats
 	}
 
