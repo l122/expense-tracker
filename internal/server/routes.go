@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/l122/expense-tracker/cmd/web"
-	"github.com/l122/expense-tracker/cmd/web/features/about"
-	"github.com/l122/expense-tracker/cmd/web/features/admin"
-	"github.com/l122/expense-tracker/cmd/web/features/index"
+	"github.com/l122/expense-tracker/internal/web"
+	"github.com/l122/expense-tracker/internal/web/features/about"
+	"github.com/l122/expense-tracker/internal/web/features/admin"
+	"github.com/l122/expense-tracker/internal/web/features/index"
 )
 
 type Handler struct {
