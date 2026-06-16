@@ -3,18 +3,12 @@ package admin
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/l122/expense-tracker/internal/domain"
 )
 
 type AdminView struct {
 	templ *template.Template
-}
-
-type User struct {
-	Index    int
-	Name     string
-	Email    string
-	Username string
-	Role     string
 }
 
 func NewAdminView(templ *template.Template) *AdminView {
@@ -23,7 +17,7 @@ func NewAdminView(templ *template.Template) *AdminView {
 	}
 }
 
-func (i *AdminView) Index(w http.ResponseWriter, users []User) {
+func (i *AdminView) Index(w http.ResponseWriter, users []domain.User) {
 	if err := i.templ.ExecuteTemplate(w, "admin.html", users); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

@@ -4,9 +4,10 @@ import (
 	"net/http"
 
 	"github.com/l122/expense-tracker/internal/database"
+	"github.com/l122/expense-tracker/internal/domain"
 )
 
-var users = []User{
+var users = []domain.User{
 	{
 		Index:    1,
 		Name:     "Alice Johnson",
@@ -45,5 +46,10 @@ func NewAdminHandler(service database.Service, adminView *AdminView) *AdminHandl
 }
 
 func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+	users, err := t.repo.GetUsers()
+	if err != nil {
+		return
+	}
+
 	t.adminView.Index(w, users)
 }
