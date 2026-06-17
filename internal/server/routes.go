@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/l122/expense-tracker/cmd/web"
-	"github.com/l122/expense-tracker/cmd/web/features/about"
-	"github.com/l122/expense-tracker/cmd/web/features/admin"
-	"github.com/l122/expense-tracker/cmd/web/features/index"
+	"github.com/l122/expense-tracker/internal/web"
+	"github.com/l122/expense-tracker/internal/web/features/about"
+	"github.com/l122/expense-tracker/internal/web/features/admin"
+	"github.com/l122/expense-tracker/internal/web/features/index"
 )
 
 type Handler struct {
@@ -26,7 +26,7 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates))).Methods(http.MethodGet)
 	router.HandleFunc("/health", s.HealthHandler).Methods(http.MethodGet)
-	router.Handle("/admin", admin.NewAdminHandler(admin.NewAdminView(templates))).Methods(http.MethodGet)
+	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
 	router.Handle("/about", about.NewAboutHandler(about.NewAboutView(templates, s.config))).Methods(http.MethodGet)
 
 	return handler

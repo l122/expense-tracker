@@ -26,7 +26,6 @@ go.work
 tmp/
 
 # IDE specific files
-.vscode
 .idea
 
 .env file
@@ -40,5 +39,4 @@ main
 
 # Editor/IDE
 .idea/
-.vscode/
 
