@@ -9,6 +9,7 @@
                 <th scope="col">User Email</th>
                 <th scope="col">User ID</th>
                 <th scope="col">User Role</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -19,6 +20,9 @@
                 <td>{{.Email}}</td>
                 <td>{{.Username}}</td>
                 <td>{{.Role}}</td>
+                <td>
+                    {{template "delete_button" .}}
+                </td>
             </tr>
             {{end}}
         </tbody>
