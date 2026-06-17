@@ -1,6 +1,9 @@
 package database
 
 import (
+	"context"
+	"time"
+
 	"github.com/l122/expense-tracker/internal/domain"
 )
 
@@ -29,29 +32,39 @@ var users = []domain.User{
 }
 
 func (s *service) SeedDb() error {
-	// TODO: seed users
-	// ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	// defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// rows, err := s.db.QueryContext(ctx, "SELECT id, name, email, username, role FROM Users")
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer rows.Close()
+	// 1. Create the schema if it doesn't exist
+	query := `
+	CREATE TABLE IF NOT EXISTS Users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT,
+		email TEXT UNIQUE,
+		username TEXT UNIQUE,
+		role TEXT
+	);`
 
-	// var result []domain.User
-	// for rows.Next() {
-	// 	user := domain.User{}
-	// 	if err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Name, &user.Role); err != nil {
-	// 		return nil, err
-	// 	}
+	if _, err := s.db.ExecContext(ctx, query); err != nil {
+		return err
+	}
 
-	// 	result = append(result, user)
-	// }
-	// if err := rows.Err(); err != nil {
-	// 	return nil, err
-	// }
+	// 2. Double check if data already exists to avoid duplicate seeding
+	var count int
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM Users").Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
 
-	// return result, nil
+	// 3. Insert seed users
+	for _, u := range users {
+		_, err := s.db.ExecContext(ctx, "INSERT INTO Users (name, email, username, role) VALUES (?, ?, ?, ?)", u.Name, u.Email, u.Username, u.Role)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

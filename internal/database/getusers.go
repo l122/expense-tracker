@@ -21,7 +21,7 @@ func (s *service) GetUsers() ([]domain.User, error) {
 	var result []domain.User
 	for rows.Next() {
 		user := domain.User{}
-		if err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Name, &user.Role); err != nil {
+		if err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Username, &user.Role); err != nil {
 			return nil, err
 		}
 

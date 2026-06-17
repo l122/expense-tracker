@@ -23,6 +23,7 @@ type Service interface {
 	Close() error
 
 	GetUsers() ([]domain.User, error)
+	SeedDb() error
 }
 
 type service struct {
@@ -43,6 +44,10 @@ func New() Service {
 		dburl = "expenses.db"
 	}
 
+	// Check if the database file already exists to determine if we should seed
+	_, err := os.Stat(dburl)
+	isFirstRun := os.IsNotExist(err)
+
 	// Ensure the directory for the database file exists
 	dir := filepath.Dir(dburl)
 	if dir != "." {
@@ -61,6 +66,14 @@ func New() Service {
 	dbInstance = &service{
 		db: db,
 	}
+
+	// Initialize schema and seed if it's the first time the DB is created
+	if isFirstRun {
+		if err := dbInstance.SeedDb(); err != nil {
+			log.Printf("Warning: failed to seed database: %v", err)
+		}
+	}
+
 	return dbInstance
 }
 
