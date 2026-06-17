@@ -13,15 +13,20 @@
             </tr>
         </thead>
         <tbody>
-            {{range .}}
+            {{range $index, $user := .}}
             <tr>
-                <th scope="row">{{.Id}}</th>
-                <td>{{.Name}}</td>
-                <td>{{.Email}}</td>
-                <td>{{.Username}}</td>
-                <td>{{.Role}}</td>
+                <th scope="row">{{$index}}</th>
+                <td>{{$user.Name}}</td>
+                <td>{{$user.Email}}</td>
+                <td>{{$user.Username}}</td>
+                <td>{{$user.Role}}</td>
                 <td>
-                    {{template "delete_button" .}}
+                    <button class="btn btn-danger" hx-delete="/admin/{{$user.Id}}" hx-target="#usersContainer"
+                        hx-confirm="Are you sure you want to '{{$user.Username}}'?" hx-indicator="#loadingIndicator">
+                        Delete
+                    </button>
+                    <!-- 
+                    {{template "delete_button" .}} -->
                 </td>
             </tr>
             {{end}}

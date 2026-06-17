@@ -23,6 +23,7 @@ type Service interface {
 	Close() error
 
 	GetUsers() ([]domain.User, error)
+	DeleteUsers(id int) error
 	SeedDb() error
 }
 

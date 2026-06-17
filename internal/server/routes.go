@@ -26,8 +26,11 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates))).Methods(http.MethodGet)
 	router.HandleFunc("/health", s.HealthHandler).Methods(http.MethodGet)
-	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
 	router.Handle("/about", about.NewAboutHandler(about.NewAboutView(templates, s.config))).Methods(http.MethodGet)
+
+	// Users
+	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
+	router.Handle("/admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodDelete)
 
 	return handler
 }
