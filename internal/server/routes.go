@@ -30,7 +30,7 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	// Users
 	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
-	router.Handle("/admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodDelete)
+	router.Handle("/admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewUsersListView(templates))).Methods(http.MethodDelete)
 
 	return handler
 }

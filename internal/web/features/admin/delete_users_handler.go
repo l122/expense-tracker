@@ -12,14 +12,14 @@ import (
 type DeleteUserHandler struct {
 	http.Handler
 
-	adminView *AdminView
-	repo      database.Service
+	usersListView *UsersListView
+	repo          database.Service
 }
 
-func NewDeleteUserHandler(service database.Service, adminView *AdminView) *DeleteUserHandler {
+func NewDeleteUserHandler(service database.Service, usersListView *UsersListView) *DeleteUserHandler {
 	return &DeleteUserHandler{
-		adminView: adminView,
-		repo:      service,
+		usersListView: usersListView,
+		repo:          service,
 	}
 }
 
@@ -46,5 +46,5 @@ func (t *DeleteUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t.adminView.Index(w, users)
+	t.usersListView.View(w, users)
 }
