@@ -45,13 +45,17 @@ func (s *service) SeedDb() error {
 		role TEXT
 	);`
 
-	if _, err := s.db.ExecContext(ctx, query); err != nil {
+	if _, err := s.db.Exec(ctx, query); err != nil {
 		return err
 	}
 
 	// 2. Double check if data already exists to avoid duplicate seeding
 	var count int
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM Users").Scan(&count)
+	rows, err := s.db.Query(ctx, "SELECT COUNT(*) FROM Users")
+	if err != nil {
+		return err
+	}
+	err = rows.Scan(&count)
 	if err != nil {
 		return err
 	}
@@ -61,7 +65,7 @@ func (s *service) SeedDb() error {
 
 	// 3. Insert seed users
 	for _, u := range users {
-		_, err := s.db.ExecContext(ctx, "INSERT INTO Users (name, email, username, role) VALUES (?, ?, ?, ?)", u.Name, u.Email, u.Username, u.Role)
+		_, err := s.db.Exec(ctx, "INSERT INTO Users (name, email, username, role) VALUES (?, ?, ?, ?)", u.Name, u.Email, u.Username, u.Role)
 		if err != nil {
 			return err
 		}

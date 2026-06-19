@@ -1,15 +1,14 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 
 	"log"
 	"os"
-	"path/filepath"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/l122/expense-tracker/internal/domain"
-	_ "modernc.org/sqlite"
 )
 
 // Service represents a service that interacts with a database.
@@ -28,11 +27,11 @@ type Service interface {
 }
 
 type service struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 var dbInstance *service
-var dburl string
+var connStr string
 
 func New() Service {
 	// Reuse Connection
@@ -40,39 +39,21 @@ func New() Service {
 		return dbInstance
 	}
 
-	dburl = os.Getenv("BLUEPRINT_DB_URL")
-	if dburl == "" {
-		dburl = "expenses.db"
-	}
-
-	// Check if the database file already exists to determine if we should seed
-	_, err := os.Stat(dburl)
-	isFirstRun := os.IsNotExist(err)
-
-	// Ensure the directory for the database file exists
-	dir := filepath.Dir(dburl)
-	if dir != "." {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			log.Fatalf("failed to create database directory: %v", err)
-		}
-	}
-
-	db, err := sql.Open("sqlite", dburl)
+	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		// This will not be a connection error, but a DSN parse error or
-		// another initialization error.
-		log.Fatal(err)
+		log.Fatalf("Unable to connect to database: %v", err)
 	}
 
+	if err = db.Ping(context.Background()); err != nil {
+		log.Fatalf("Database ping failed: %v", err)
+	}
 	dbInstance = &service{
 		db: db,
 	}
 
 	// Initialize schema and seed if it's the first time the DB is created
-	if isFirstRun {
-		if err := dbInstance.SeedDb(); err != nil {
-			log.Printf("Warning: failed to seed database: %v", err)
-		}
+	if err := dbInstance.SeedDb(); err != nil {
+		log.Printf("Warning: failed to seed database: %v", err)
 	}
 
 	return dbInstance
@@ -83,6 +64,7 @@ func New() Service {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", dburl)
-	return s.db.Close()
+	log.Printf("Disconnected from database: %s", connStr)
+	return nil
+	// return s.db.Close()
 }

@@ -12,7 +12,7 @@ func (s *service) GetUsers() ([]domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	rows, err := s.db.QueryContext(ctx, "SELECT id, name, email, username, role FROM Users")
+	rows, err := s.db.Query(ctx, "SELECT id, name, email, username, role FROM Users")
 	if err != nil {
 		return nil, err
 	}

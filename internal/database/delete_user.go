@@ -11,16 +11,12 @@ func (s *service) DeleteUsers(id int) error {
 	defer cancel()
 
 	query := "DELETE FROM Users WHERE id = ?"
-	result, err := s.db.ExecContext(ctx, query, id)
+	result, err := s.db.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to execute delete: %w", err)
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
-	}
-
+	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
 		return fmt.Errorf("No user found with ID %d\n", id)
 	}
