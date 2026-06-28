@@ -21,9 +21,15 @@ type Service interface {
 	// It returns an error if the connection cannot be closed.
 	Close() error
 
+	SeedDb() error
+
+	// Users
+	GetUserByEmail(email string) (domain.User, error)
+	CreateUser(name, email, username, role string) (domain.User, error)
+
+	// TODO: refactor
 	GetUsers() ([]domain.User, error)
 	DeleteUsers(id int) error
-	SeedDb() error
 }
 
 type service struct {
