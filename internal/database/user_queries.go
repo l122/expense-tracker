@@ -23,6 +23,11 @@ func (s *service) GetUserByEmail(email string) (domain.User, error) {
 }
 
 func (s *service) CreateUser(name, email, username, role string) (domain.User, error) {
-	// TODO:implement
-	return domain.User{}, nil
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+
+	var user domain.User
+	// query := "INSERT INTO users"
+
+	return user, nil
 }
