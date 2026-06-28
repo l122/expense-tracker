@@ -58,9 +58,9 @@ func New() Service {
 	}
 
 	// Initialize schema and seed if it's the first time the DB is created
-	if err := dbInstance.SeedDb(); err != nil {
-		log.Printf("Warning: failed to seed database: %v", err)
-	}
+	// if err := dbInstance.SeedDb(); err != nil {
+	// 	log.Printf("Warning: failed to seed database: %v", err)
+	// }
 
 	return dbInstance
 }

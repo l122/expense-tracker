@@ -8,27 +8,27 @@ import (
 )
 
 var users = []domain.User{
-	{
-		Id:       1,
-		Name:     "Alice Johnson",
-		Email:    "alice.johnson@example.com",
-		Username: "usr_982341",
-		Role:     "admin",
-	},
-	{
-		Id:       2,
-		Name:     "Bob Smith",
-		Email:    "bob.smith@provider.net",
-		Username: "usr_441209",
-		Role:     "user",
-	},
-	{
-		Id:       3,
-		Name:     "Charlie Davis",
-		Email:    "charlie.d@service.org",
-		Username: "usr_112233",
-		Role:     "user",
-	},
+	// {
+	// 	Id:       1,
+	// 	Name:     "Alice Johnson",
+	// 	Email:    "alice.johnson@example.com",
+	// 	Username: "usr_982341",
+	// 	Role:     "admin",
+	// },
+	// {
+	// 	Id:       2,
+	// 	Name:     "Bob Smith",
+	// 	Email:    "bob.smith@provider.net",
+	// 	Username: "usr_441209",
+	// 	Role:     "user",
+	// },
+	// {
+	// 	Id:       3,
+	// 	Name:     "Charlie Davis",
+	// 	Email:    "charlie.d@service.org",
+	// 	Username: "usr_112233",
+	// 	Role:     "user",
+	// },
 }
 
 func (s *service) SeedDb() error {
