@@ -200,7 +200,7 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$BUILD_DATE"
+            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$BUILD_DATE",APP_CALL_BACK_URL="${{ env.SERVICE }}"
 
       - name: Show output
         run: |

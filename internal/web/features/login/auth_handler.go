@@ -61,7 +61,7 @@ func createAuthCookie(r *http.Request, verifier string) *http.Cookie {
 func createAuthParameters(challenge string) url.Values {
 	params := url.Values{}
 	params.Set("provider", "google")
-	params.Set("redirect_to", os.Getenv("GOOGLE_REDIRECT_URL"))
+	params.Set("redirect_to", os.Getenv("APP_CALL_BACK_URL"))
 	params.Set("code_challenge", challenge)
 	params.Set("code_challenge_method", "S256")
 	return params
