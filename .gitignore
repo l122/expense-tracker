@@ -24,11 +24,10 @@ db/
 # Go workspace file
 go.work
 tmp/
+.env.local
 
 # IDE specific files
 .idea
-
-.env file
 
 # Project build
 main
@@ -39,4 +38,3 @@ main
 
 # Editor/IDE
 .idea/
-

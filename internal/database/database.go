@@ -1,38 +1,43 @@
 package database
 
 import (
-	"database/sql"
+	"os"
 
 	"log"
-	"os"
-	"path/filepath"
 
+	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/l122/expense-tracker/internal/domain"
-	_ "modernc.org/sqlite"
+	"github.com/supabase-community/gotrue-go"
+	"github.com/supabase-community/supabase-go"
 )
 
 // Service represents a service that interacts with a database.
 type Service interface {
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
-	Health() map[string]string
+	// Health() map[string]string
+	Health() string
 
-	// Close terminates the database connection.
-	// It returns an error if the connection cannot be closed.
-	Close() error
+	// SeedDb() error
 
-	GetUsers() ([]domain.User, error)
-	DeleteUsers(id int) error
-	SeedDb() error
+	// // Users
+	// GetUserByEmail(email string) (domain.User, error)
+	// CreateUser(name, email, username, role string) (domain.User, error)
+
+	// // TODO: refactor
+	// GetUsers() ([]domain.User, error)
+	// DeleteUsers(id int) error
+
+	GetAuthClient() gotrue.Client
 }
 
 type service struct {
-	db *sql.DB
+	db *supabase.Client
+
+	dbUrl string
 }
 
 var dbInstance *service
-var dburl string
 
 func New() Service {
 	// Reuse Connection
@@ -40,49 +45,33 @@ func New() Service {
 		return dbInstance
 	}
 
-	dburl = os.Getenv("BLUEPRINT_DB_URL")
-	if dburl == "" {
-		dburl = "expenses.db"
-	}
-
-	// Check if the database file already exists to determine if we should seed
-	_, err := os.Stat(dburl)
-	isFirstRun := os.IsNotExist(err)
-
-	// Ensure the directory for the database file exists
-	dir := filepath.Dir(dburl)
-	if dir != "." {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			log.Fatalf("failed to create database directory: %v", err)
-		}
-	}
-
-	db, err := sql.Open("sqlite", dburl)
+	// 1. Load the .env file
+	err := godotenv.Load()
 	if err != nil {
-		// This will not be a connection error, but a DSN parse error or
-		// another initialization error.
-		log.Fatal(err)
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	// 2. Fetch the variables using standard os package
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	supabaseKey := os.Getenv("SUPABASE_PUBLISHABLE_KEY")
+	if supabaseURL == "" || supabaseKey == "" {
+		log.Fatal("Supabase credentials are missing from the environment")
+	}
+
+	// 3. Initialize your client
+	client, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
+	if err != nil {
+		log.Fatalf("Failed to initialize Supabase client: %v", err)
 	}
 
 	dbInstance = &service{
-		db: db,
-	}
-
-	// Initialize schema and seed if it's the first time the DB is created
-	if isFirstRun {
-		if err := dbInstance.SeedDb(); err != nil {
-			log.Printf("Warning: failed to seed database: %v", err)
-		}
+		db:    client,
+		dbUrl: supabaseURL,
 	}
 
 	return dbInstance
 }
 
-// Close closes the database connection.
-// It logs a message indicating the disconnection from the specific database.
-// If the connection is successfully closed, it returns nil.
-// If an error occurs while closing the connection, it returns the error.
-func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", dburl)
-	return s.db.Close()
+func (s *service) GetAuthClient() gotrue.Client {
+	return s.db.Auth
 }
