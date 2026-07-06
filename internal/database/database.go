@@ -1,43 +1,43 @@
 package database
 
 import (
-	"context"
-
-	"log"
 	"os"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"log"
+
+	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/supabase-community/gotrue-go"
+	"github.com/supabase-community/supabase-go"
 )
 
 // Service represents a service that interacts with a database.
 type Service interface {
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
-	Health() map[string]string
+	// Health() map[string]string
+	Health() string
 
-	// Close terminates the database connection.
-	// It returns an error if the connection cannot be closed.
-	Close() error
+	// SeedDb() error
 
-	SeedDb() error
+	// // Users
+	// GetUserByEmail(email string) (domain.User, error)
+	// CreateUser(name, email, username, role string) (domain.User, error)
 
-	// Users
-	GetUserByEmail(email string) (domain.User, error)
-	CreateUser(name, email, username, role string) (domain.User, error)
+	// // TODO: refactor
+	// GetUsers() ([]domain.User, error)
+	// DeleteUsers(id int) error
 
-	// TODO: refactor
-	GetUsers() ([]domain.User, error)
-	DeleteUsers(id int) error
+	GetAuthClient() gotrue.Client
 }
 
 type service struct {
-	db *pgxpool.Pool
+	db *supabase.Client
+
+	dbUrl string
 }
 
 var dbInstance *service
-var connStr string
 
 func New() Service {
 	// Reuse Connection
@@ -45,32 +45,33 @@ func New() Service {
 		return dbInstance
 	}
 
-	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	// 1. Load the .env file
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	if err = db.Ping(context.Background()); err != nil {
-		log.Fatalf("Database ping failed: %v", err)
+	// 2. Fetch the variables using standard os package
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	supabaseKey := os.Getenv("SUPABASE_PUBLISHABLE_KEY")
+	if supabaseURL == "" || supabaseKey == "" {
+		log.Fatal("Supabase credentials are missing from the environment")
 	}
+
+	// 3. Initialize your client
+	client, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
+	if err != nil {
+		log.Fatalf("Failed to initialize Supabase client: %v", err)
+	}
+
 	dbInstance = &service{
-		db: db,
+		db:    client,
+		dbUrl: supabaseURL,
 	}
-
-	// Initialize schema and seed if it's the first time the DB is created
-	// if err := dbInstance.SeedDb(); err != nil {
-	// 	log.Printf("Warning: failed to seed database: %v", err)
-	// }
 
 	return dbInstance
 }
 
-// Close closes the database connection.
-// It logs a message indicating the disconnection from the specific database.
-// If the connection is successfully closed, it returns nil.
-// If an error occurs while closing the connection, it returns the error.
-func (s *service) Close() error {
-	log.Printf("Disconnected from database: %s", connStr)
-	return nil
-	// return s.db.Close()
+func (s *service) GetAuthClient() gotrue.Client {
+	return s.db.Auth
 }
