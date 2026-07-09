@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+
 	"github.com/l122/expense-tracker/internal/database"
 )
 
@@ -59,29 +61,59 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	shouldReturn = setSessionToken(w, r, tokenResp)
+	// todo:
+	// user_metadata email_verified true
+
+	shouldReturn = setSessionTokens(w, r, tokenResp)
 	if shouldReturn {
 		return
 	}
 
+	// TODO: check if user is enabled
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+
+	// TODO: if not enabled -> display message
 }
 
-func setSessionToken(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
-	sessionSecret := os.Getenv("SESSION_SECRET")
-	if sessionSecret == "" {
-		setTemporaryRedirectWithError(w, r, "SESSION_SECRET is not configured")
-		return true
+func getExpirationUnverified(tokenString string) (time.Time, error) {
+	parser := jwt.NewParser()
+	claims := jwt.MapClaims{}
+
+	// Parse unverified skips signature verification
+	_, _, err := parser.ParseUnverified(tokenString, &claims)
+	if err != nil {
+		return time.Time{}, err
 	}
 
-	signedValue := signValue(tokenResp.User.ID, sessionSecret)
+	// Extract the expiration time
+	if exp, err := claims.GetExpirationTime(); err == nil && exp != nil {
+		return exp.Time, nil
+	}
 
-	// Create signed session cookie using HMAC-SHA256
+	return time.Time{}, fmt.Errorf("exp claim missing from payload")
+}
+
+func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
+	exp, err := getExpirationUnverified(tokenResp.AccessToken)
+	if err != nil {
+		setTemporaryRedirectWithError(w, r, err.Error())
+	}
+
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    signedValue,
+		Name:     accessToken,
+		Value:    tokenResp.AccessToken,
 		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  exp,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     refreshToken,
+		Value:    tokenResp.RefreshToken,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * 7 * 4 * time.Hour), // todo: move to configs
 		HttpOnly: true,
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
