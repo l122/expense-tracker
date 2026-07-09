@@ -10,12 +10,13 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
+
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/l122/expense-tracker/internal/database"
+	"github.com/l122/expense-tracker/pkgs/redirect"
 )
 
 type CallbackHandler struct {
@@ -80,7 +81,7 @@ func getExpirationUnverified(tokenString string) (time.Time, error) {
 func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
 	exp, err := getExpirationUnverified(tokenResp.AccessToken)
 	if err != nil {
-		setTemporaryRedirectWithError(w, r, err.Error())
+		redirect.SetRedirectToLoginWithError(w, r, err.Error())
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -114,14 +115,14 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 		fmt.Println("STATUS:", response.Status)
 		fmt.Println("BODY:", string(body))
 
-		setTemporaryRedirectWithError(w, r, "failed to exchange token")
+		redirect.SetRedirectToLoginWithError(w, r, "failed to exchange token")
 		return nil, true
 	}
 	defer response.Body.Close()
 
 	var tokenResp = &TokenResponse{}
 	if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
-		setTemporaryRedirectWithError(w, r, "failed to decode userinfo")
+		redirect.SetRedirectToLoginWithError(w, r, "failed to decode userinfo")
 		return nil, true
 	}
 	return tokenResp, false
@@ -130,14 +131,14 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 func getTokenRequest(r *http.Request, w http.ResponseWriter) (*http.Request, bool) {
 	cookie, err := r.Cookie(verifierCookieName)
 	if err != nil {
-		setTemporaryRedirectWithError(w, r, "missing pkce cookie")
+		redirect.SetRedirectToLoginWithError(w, r, "missing pkce cookie")
 		return nil, true
 	}
 	removeAuthCookie(w)
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		setTemporaryRedirectWithError(w, r, "missing oauth code")
+		redirect.SetRedirectToLoginWithError(w, r, "missing oauth code")
 		return nil, true
 	}
 
@@ -156,12 +157,6 @@ func signValue(value, secret string) string {
 	return value + "." + signature
 }
 
-func setTemporaryRedirectWithError(w http.ResponseWriter, r *http.Request, errorMessage string) {
-	errorParams := strings.Split(errorMessage, " ")
-	errorMessageNormilized := strings.Join(errorParams, "+")
-	http.Redirect(w, r, "/login?error="+errorMessageNormilized, http.StatusTemporaryRedirect)
-}
-
 func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier string) (*http.Request, error) {
 	payload := map[string]string{
 		authCode:     code,
@@ -170,7 +165,7 @@ func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier s
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		setTemporaryRedirectWithError(w, r, "json marshal failed")
+		redirect.SetRedirectToLoginWithError(w, r, "json marshal failed")
 		return nil, err
 	}
 
@@ -180,7 +175,7 @@ func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier s
 		bytes.NewReader(data),
 	)
 	if err != nil {
-		setTemporaryRedirectWithError(w, r, "failed to create token exchange request")
+		redirect.SetRedirectToLoginWithError(w, r, "failed to create token exchange request")
 		return nil, err
 	}
 

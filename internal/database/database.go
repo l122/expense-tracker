@@ -1,12 +1,14 @@
 package database
 
 import (
+	"context"
 	"os"
 
 	"log"
 
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/supabase-community/gotrue-go"
 	"github.com/supabase-community/supabase-go"
 )
@@ -25,7 +27,7 @@ type Service interface {
 	// CreateUser(name, email, username, role string) (domain.User, error)
 
 	// // TODO: refactor
-	// GetUsers() ([]domain.User, error)
+	GetUsers(ctx context.Context) ([]domain.User, error)
 	// DeleteUsers(id int) error
 
 	GetAuthClient() gotrue.Client

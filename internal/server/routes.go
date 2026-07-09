@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/l122/expense-tracker/internal/web"
 	"github.com/l122/expense-tracker/internal/web/features/about"
+	"github.com/l122/expense-tracker/internal/web/features/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index"
 	"github.com/l122/expense-tracker/internal/web/features/login"
 )
@@ -32,7 +33,7 @@ func (s *Server) RegisterRoutes() *Handler {
 	router.Handle("/login", login.NewLoginHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
 	router.Handle("/auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
 	router.Handle("/auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
-	// router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
+	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
 	// router.Handle("/admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewUsersListView(templates))).Methods(http.MethodDelete)
 
 	return handler
