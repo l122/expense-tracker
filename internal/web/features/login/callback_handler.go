@@ -45,22 +45,6 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// // Fetch or Register the User in the DB
-	// var dbUser domain.User
-	// dbUser, err = h.db.GetUserByEmail(googleUser.Email)
-	// if err != nil {
-	// 	// User does not exist, let's create them
-	// 	username := "usr_" + googleUser.ID
-	// 	if len(username) > 15 {
-	// 		username = username[:15]
-	// 	}
-	// 	dbUser, err = h.db.CreateUser(googleUser.Name, googleUser.Email, username, "user")
-	// 	if err != nil {
-	// 		http.Redirect(w, r, "/login?error=Failed+to+register+user", http.StatusTemporaryRedirect)
-	// 		return
-	// 	}
-	// }
-
 	// todo:
 	// user_metadata email_verified true
 
