@@ -36,7 +36,7 @@ func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	users, err := t.repo.GetUsers(ctx)
 	if err != nil {
-		return
+		// TODO: log
 	}
 
 	t.adminView.Index(w, users)
