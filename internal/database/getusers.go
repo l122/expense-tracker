@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/l122/expense-tracker/internal/domain"
-	"github.com/l122/expense-tracker/pkgs/mytoken"
+	"github.com/l122/expense-tracker/pkgs/token"
 )
 
 func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
-	if token, ok := mytoken.FromContext(ctx); ok {
+	if token, ok := token.FromContext(ctx); ok {
 		fmt.Println(token)
 		// request.Set("Bearer", token)
 	}

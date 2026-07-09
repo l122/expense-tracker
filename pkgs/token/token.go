@@ -1,4 +1,4 @@
-package mytoken
+package token
 
 import (
 	"context"

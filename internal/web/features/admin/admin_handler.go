@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/l122/expense-tracker/internal/database"
-	"github.com/l122/expense-tracker/pkgs/mytoken"
 	"github.com/l122/expense-tracker/pkgs/redirect"
+	"github.com/l122/expense-tracker/pkgs/token"
 )
 
 type AdminHandler struct {
@@ -27,12 +27,12 @@ func NewAdminHandler(service database.Service, adminView *AdminView) *AdminHandl
 func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	token, err := mytoken.FromRequest(r)
+	accessToken, err := token.FromRequest(r)
 	if err != nil {
 		redirect.ToLoginWithError(w, r, "no token in request")
 		return
 	}
-	ctx = mytoken.NewContext(ctx, token)
+	ctx = token.NewContext(ctx, accessToken)
 
 	users, err := t.repo.GetUsers(ctx)
 	if err != nil {
