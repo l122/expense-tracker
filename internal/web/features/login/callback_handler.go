@@ -81,7 +81,7 @@ func getExpirationUnverified(tokenString string) (time.Time, error) {
 func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
 	exp, err := getExpirationUnverified(tokenResp.AccessToken)
 	if err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, err.Error())
+		redirect.ToLoginWithError(w, r, err.Error())
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -115,14 +115,14 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 		fmt.Println("STATUS:", response.Status)
 		fmt.Println("BODY:", string(body))
 
-		redirect.SetRedirectToLoginWithError(w, r, "failed to exchange token")
+		redirect.ToLoginWithError(w, r, "failed to exchange token")
 		return nil, true
 	}
 	defer response.Body.Close()
 
 	var tokenResp = &TokenResponse{}
 	if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, "failed to decode userinfo")
+		redirect.ToLoginWithError(w, r, "failed to decode userinfo")
 		return nil, true
 	}
 	return tokenResp, false
@@ -131,14 +131,14 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 func getTokenRequest(r *http.Request, w http.ResponseWriter) (*http.Request, bool) {
 	cookie, err := r.Cookie(verifierCookieName)
 	if err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, "missing pkce cookie")
+		redirect.ToLoginWithError(w, r, "missing pkce cookie")
 		return nil, true
 	}
 	removeAuthCookie(w)
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		redirect.SetRedirectToLoginWithError(w, r, "missing oauth code")
+		redirect.ToLoginWithError(w, r, "missing oauth code")
 		return nil, true
 	}
 
@@ -165,7 +165,7 @@ func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier s
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, "json marshal failed")
+		redirect.ToLoginWithError(w, r, "json marshal failed")
 		return nil, err
 	}
 
@@ -175,7 +175,7 @@ func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier s
 		bytes.NewReader(data),
 	)
 	if err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, "failed to create token exchange request")
+		redirect.ToLoginWithError(w, r, "failed to create token exchange request")
 		return nil, err
 	}
 

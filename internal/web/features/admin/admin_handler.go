@@ -29,7 +29,7 @@ func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	token, err := mytoken.FromRequest(r)
 	if err != nil {
-		redirect.SetRedirectToLoginWithError(w, r, "no token in request")
+		redirect.ToLoginWithError(w, r, "no token in request")
 		return
 	}
 	ctx = mytoken.NewContext(ctx, token)
