@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,22 +11,22 @@ import (
 	"github.com/l122/expense-tracker/pkgs/token"
 )
 
-type AdminHandler struct {
+type DisableUserHandler struct {
 	http.Handler
 
 	adminView *AdminView
 	repo      database.Service
 }
 
-func NewAdminHandler(service database.Service, adminView *AdminView) *AdminHandler {
-	return &AdminHandler{
+func NewDisableUserHandler(service database.Service, adminView *AdminView) *DisableUserHandler {
+	return &DisableUserHandler{
 		adminView: adminView,
 		repo:      service,
 	}
 }
 
-func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// // Check role
+func (t *DisableUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Check role
 	// appRole, err := appRole.FromRequest(r)
 	// if err != nil {
 	// 	redirect.ToLoginWithError(w, r, "no app_role in request")
@@ -45,6 +46,15 @@ func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx = token.NewContext(ctx, accessToken)
+
+	userId := r.PathValue("id")
+	user, err := t.repo.DisableUser(ctx, userId)
+	if err != nil {
+		// TODO: log
+		return
+	}
+
+	fmt.Println(user)
 
 	users, err := t.repo.GetUsers(ctx)
 	if err != nil {

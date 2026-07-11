@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/l122/expense-tracker/internal/web"
 	"github.com/l122/expense-tracker/internal/web/features/index"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
@@ -20,25 +19,26 @@ type Handler struct {
 }
 
 func (s *Server) RegisterRoutes() *Handler {
-	router := mux.NewRouter()
+	router := http.NewServeMux()
 	handler := &Handler{
 		Handler: router,
 	}
 
 	templates := web.ParseTemplates()
 
-	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates))).Methods(http.MethodGet)
-	router.Handle("/navbar", navbar.NewHandler(navbar.NewView(templates))).Methods(http.MethodGet)
-	router.Handle("/dashboard", dashboard.NewHandler(dashboard.New(templates))).Methods(http.MethodGet)
-	router.HandleFunc("/health", s.HealthHandler).Methods(http.MethodGet)
-	router.Handle("/about", about.NewAboutHandler(about.NewAboutView(templates, s.config))).Methods(http.MethodGet)
+	router.Handle("GET /", index.NewIndexHandler(index.NewIndexView(templates)))
+	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates)))
+	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
+	router.HandleFunc("GET /health", s.HealthHandler)
+	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
 
 	// Auth
-	router.Handle("/login", login.NewLoginHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
-	router.Handle("/auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
-	router.Handle("/auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db)).Methods(http.MethodGet)
-	router.Handle("/admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates))).Methods(http.MethodGet)
-	// router.Handle("/admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewUsersListView(templates))).Methods(http.MethodDelete)
+	router.Handle("GET /login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
 
 	return handler
 }

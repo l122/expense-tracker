@@ -8,8 +8,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
                 <th scope="col">Role</th>
-                <th scope="col">Enabled</th>
-                <th scope="col">Action</th>
+                <th scope="col" colspan="2">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -19,10 +18,23 @@
                 <td>{{$user.Full_name}}</td>
                 <td>{{$user.Email}}</td>
                 <td>{{$user.App_role}}</td>
-                <td>{{$user.Enabled}}</td>
+                <td>
+                    {{if $user.Enabled}}
+                    <button class="btn btn-warning" hx-patch="/admin/{{$user.Id}}/disable" hx-target="#usersContainer"
+                        hx-indicator="#loadingIndicator">
+                        Disable
+                    </button>
+                    {{else}}
+                    <button class="btn btn-warning" hx-patch="/admin/{{$user.Id}}/enable" hx-target="#usersContainer"
+                        hx-indicator="#loadingIndicator">
+                        Enable
+                    </button>
+                    {{end}}
+                </td>
                 <td>
                     <button class="btn btn-danger" hx-delete="/admin/{{$user.Id}}" hx-target="#usersContainer"
-                        hx-confirm="Are you sure you want to '{{$user.Email}}'?" hx-indicator="#loadingIndicator">
+                        hx-confirm="Are you sure you want to delete '{{$user.Email}}'?"
+                        hx-indicator="#loadingIndicator">
                         Delete
                     </button>
                     <!-- 

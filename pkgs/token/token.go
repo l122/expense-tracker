@@ -14,6 +14,7 @@ type key int
 const (
 	accessToken              = "access_token"
 	missingExpClaimError     = "exp claim missing from payload"
+	missingSubClaimError     = "sub claim missing from payload"
 	tokenKey             key = 0
 )
 
@@ -51,4 +52,21 @@ func GetExpirationUnverified(tokenString string) (time.Time, error) {
 	}
 
 	return time.Time{}, fmt.Errorf(missingExpClaimError)
+}
+
+func GetUserId(tokenString string) (string, error) {
+	parser := jwt.NewParser()
+	claims := jwt.MapClaims{}
+
+	// Parse unverified skips signature verification
+	_, _, err := parser.ParseUnverified(tokenString, &claims)
+	if err != nil {
+		return "", err
+	}
+
+	if sub, err := claims.GetSubject(); err == nil && sub != "" {
+		return sub, nil
+	}
+
+	return "", fmt.Errorf(missingSubClaimError)
 }
