@@ -8,7 +8,6 @@
                 <th scope="col">User Name</th>
                 <th scope="col">User Email</th>
                 <th scope="col">User ID</th>
-                <th scope="col">User Role</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -16,10 +15,9 @@
             {{range $index, $user := .}}
             <tr>
                 <th scope="row">{{$index}}</th>
-                <td>{{$user.Name}}</td>
+                <td>{{$user.Full_name}}</td>
                 <td>{{$user.Email}}</td>
                 <td>{{$user.Username}}</td>
-                <td>{{$user.Role}}</td>
                 <td>
                     <button class="btn btn-danger" hx-delete="/admin/{{$user.Id}}" hx-target="#usersContainer"
                         hx-confirm="Are you sure you want to '{{$user.Username}}'?" hx-indicator="#loadingIndicator">
