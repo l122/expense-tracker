@@ -4,5 +4,6 @@ type User struct {
 	Id        string
 	Full_name string
 	Email     string
-	Username  string
+	App_role  string
+	Enabled   bool
 }
