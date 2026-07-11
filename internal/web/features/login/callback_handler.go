@@ -2,6 +2,7 @@ package login
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/pkgs/redirect"
+	"github.com/l122/expense-tracker/pkgs/token"
 )
 
 type CallbackHandler struct {
@@ -48,6 +50,27 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if !tokenResp.User.UserMetadata.EmailVerified {
 		redirect.ToLoginWithError(w, r, "email not verified")
+	}
+
+	// check if enabled
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	ctx = token.NewContext(ctx, tokenResp.AccessToken)
+
+	user, err := h.db.GetUserById(ctx, tokenResp.User.ID)
+	if err != nil {
+		redirect.ToLoginWithError(w, r, "user not found")
+		return
+	}
+
+	if !user.Enabled {
+		redirect.ToLoginWithError(w, r, "user not enabled")
+		return
+	}
+
+	shouldReturn = setUserRole(w, r, user.App_role)
+	if shouldReturn {
+		return
 	}
 
 	shouldReturn = setSessionTokens(w, r, tokenResp)
@@ -104,6 +127,19 @@ func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenRe
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
 	})
+	return false
+}
+
+func setUserRole(w http.ResponseWriter, r *http.Request, userRole string) bool {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "app_role",
+		Value:    userRole,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+
 	return false
 }
 

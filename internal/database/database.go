@@ -28,6 +28,7 @@ type Service interface {
 
 	// // TODO: refactor
 	GetUsers(ctx context.Context) ([]domain.User, error)
+	GetUserById(ctx context.Context, userId string) (domain.User, error)
 	// DeleteUsers(id int) error
 
 	GetAuthClient() gotrue.Client
