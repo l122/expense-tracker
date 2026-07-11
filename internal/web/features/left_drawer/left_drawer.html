@@ -20,15 +20,18 @@
         <ul class="nav flex-column">
 
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" hx-get="/dashboard" hx-target="#main_page">Dashboard</a>
+                <a class="nav-link active" aria-current="page" href="/dashboard" hx-get="/dashboard"
+                    hx-target="#main_page" hx-trigger="load, click" data-bs-dismiss="offcanvas">Dashboard</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" hx-get="/about" hx-target="#main_page">About</a>
+                <a class="nav-link" hx-get="/about" href="/about" hx-target="#main_page"
+                    data-bs-dismiss="offcanvas">About</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" hx-get="/admin" hx-target="#main_page">Admin</a>
+                <a class="nav-link" hx-get="/admin" href="/admin" hx-target="#main_page"
+                    data-bs-dismiss="offcanvas">Admin</a>
             </li>
 
         </ul>
