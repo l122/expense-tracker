@@ -15,8 +15,8 @@ func NewView(templ *template.Template) *View {
 	}
 }
 
-func (i *View) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "navbar", nil); err != nil {
+func (i *View) Index(w http.ResponseWriter, role string) {
+	if err := i.templ.ExecuteTemplate(w, "navbar", role); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

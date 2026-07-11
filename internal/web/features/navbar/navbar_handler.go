@@ -2,6 +2,8 @@ package navbar
 
 import (
 	"net/http"
+
+	"github.com/l122/expense-tracker/pkgs/appRole"
 )
 
 type NavbarHandler struct {
@@ -16,6 +18,11 @@ func NewHandler(view *View) *NavbarHandler {
 	}
 }
 
-func (t *NavbarHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
-	t.view.Index(w)
+func (t *NavbarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appRole, err := appRole.FromRequest(r)
+	if err != nil {
+		return
+	}
+
+	t.view.Index(w, appRole)
 }
