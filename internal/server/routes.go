@@ -12,6 +12,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/login"
+	"github.com/l122/expense-tracker/internal/web/features/navbar"
 )
 
 type Handler struct {
@@ -27,6 +28,7 @@ func (s *Server) RegisterRoutes() *Handler {
 	templates := web.ParseTemplates()
 
 	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates))).Methods(http.MethodGet)
+	router.Handle("/navbar", navbar.NewHandler(navbar.NewView(templates))).Methods(http.MethodGet)
 	router.Handle("/dashboard", dashboard.NewHandler(dashboard.New(templates))).Methods(http.MethodGet)
 	router.HandleFunc("/health", s.HealthHandler).Methods(http.MethodGet)
 	router.Handle("/about", about.NewAboutHandler(about.NewAboutView(templates, s.config))).Methods(http.MethodGet)
