@@ -8,9 +8,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/l122/expense-tracker/internal/web"
 	"github.com/l122/expense-tracker/internal/web/features/index"
-	"github.com/l122/expense-tracker/internal/web/features/index/about"
-	"github.com/l122/expense-tracker/internal/web/features/index/admin"
-	"github.com/l122/expense-tracker/internal/web/features/index/dashboard"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/login"
 )
 
