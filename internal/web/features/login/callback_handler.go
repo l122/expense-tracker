@@ -46,8 +46,9 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// todo:
-	// user_metadata email_verified true
+	if !tokenResp.User.UserMetadata.EmailVerified {
+		redirect.ToLoginWithError(w, r, "email not verified")
+	}
 
 	shouldReturn = setSessionTokens(w, r, tokenResp)
 	if shouldReturn {
