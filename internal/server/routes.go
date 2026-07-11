@@ -10,6 +10,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/about"
 	"github.com/l122/expense-tracker/internal/web/features/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index"
+	"github.com/l122/expense-tracker/internal/web/features/index/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/login"
 )
 
@@ -26,6 +27,7 @@ func (s *Server) RegisterRoutes() *Handler {
 	templates := web.ParseTemplates()
 
 	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates))).Methods(http.MethodGet)
+	router.Handle("/dashboard", dashboard.NewHandler(dashboard.New(templates))).Methods(http.MethodGet)
 	router.HandleFunc("/health", s.HealthHandler).Methods(http.MethodGet)
 	router.Handle("/about", about.NewAboutHandler(about.NewAboutView(templates, s.config))).Methods(http.MethodGet)
 

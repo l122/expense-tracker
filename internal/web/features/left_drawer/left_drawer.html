@@ -20,15 +20,15 @@
         <ul class="nav flex-column">
 
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Dashboard</a>
+                <a class="nav-link active" aria-current="page" hx-get="/dashboard" hx-target="#main_page">Dashboard</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="/about">About</a>
+                <a class="nav-link" hx-get="/about" hx-target="#main_page">About</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="/admin">Admin</a>
+                <a class="nav-link" hx-get="/admin" hx-target="#main_page">Admin</a>
             </li>
 
         </ul>

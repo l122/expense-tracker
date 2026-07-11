@@ -1,18 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "confirmation_modal" }}
 
-{{template "head" "Admin - User Management"}}
-
-<body>
-
-    {{template "left_drawer"}}
-
-    {{template "confirmation_modal" }}
-
-    <div id="usersContainer">
-        {{template "admin_container" .}}
-    </div>
-
-</body>
-
-</html>
+<div id="usersContainer">
+    {{template "admin_container" .}}
+</div>
