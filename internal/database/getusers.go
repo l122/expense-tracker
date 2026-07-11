@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,16 +18,15 @@ const (
 )
 
 func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
+	var result []domain.User
 	token, ok := token.FromContext(ctx)
-	if ok {
-		fmt.Println(token)
-		// request.Set("Bearer", token)
+	if !ok {
+		return result, errors.New("Failed to extract token")
 	}
 
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
 	endpoint := fmt.Sprintf("%s/%s?select=*", url, tableName)
 
-	var result []domain.User
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		fmt.Printf("Failed to create request: %v\n", err)
