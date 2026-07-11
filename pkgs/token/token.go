@@ -2,15 +2,23 @@ package token
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type key int
 
-const tokenKey key = 0
+const (
+	accessToken              = "access_token"
+	missingExpClaimError     = "exp claim missing from payload"
+	tokenKey             key = 0
+)
 
 func FromRequest(r *http.Request) (string, error) {
-	cookie, err := r.Cookie("access_token")
+	cookie, err := r.Cookie(accessToken)
 	if err != nil {
 		return "", err
 	}
@@ -25,4 +33,22 @@ func NewContext(ctx context.Context, token string) context.Context {
 func FromContext(ctx context.Context) (string, bool) {
 	token, ok := ctx.Value(tokenKey).(string)
 	return token, ok
+}
+
+func GetExpirationUnverified(tokenString string) (time.Time, error) {
+	parser := jwt.NewParser()
+	claims := jwt.MapClaims{}
+
+	// Parse unverified skips signature verification
+	_, _, err := parser.ParseUnverified(tokenString, &claims)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	// Extract the expiration time
+	if exp, err := claims.GetExpirationTime(); err == nil && exp != nil {
+		return exp.Time, nil
+	}
+
+	return time.Time{}, fmt.Errorf(missingExpClaimError)
 }

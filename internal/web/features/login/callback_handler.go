@@ -14,9 +14,8 @@ import (
 
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
-
 	"github.com/l122/expense-tracker/internal/database"
+	"github.com/l122/expense-tracker/pkgs/appRole"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/token"
 )
@@ -52,7 +51,6 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirect.ToLoginWithError(w, r, "email not verified")
 	}
 
-	// check if enabled
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	ctx = token.NewContext(ctx, tokenResp.AccessToken)
@@ -68,7 +66,12 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shouldReturn = setUserRole(w, r, user.App_role)
+	exp, err := token.GetExpirationUnverified(tokenResp.AccessToken)
+	if err != nil {
+		redirect.ToLoginWithError(w, r, err.Error())
+		return
+	}
+	shouldReturn = appRole.ToRequest(w, r, user.App_role, exp)
 	if shouldReturn {
 		return
 	}
@@ -78,32 +81,11 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: check if user is enabled
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-
-	// TODO: if not enabled -> display message
-}
-
-func getExpirationUnverified(tokenString string) (time.Time, error) {
-	parser := jwt.NewParser()
-	claims := jwt.MapClaims{}
-
-	// Parse unverified skips signature verification
-	_, _, err := parser.ParseUnverified(tokenString, &claims)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	// Extract the expiration time
-	if exp, err := claims.GetExpirationTime(); err == nil && exp != nil {
-		return exp.Time, nil
-	}
-
-	return time.Time{}, fmt.Errorf("exp claim missing from payload")
 }
 
 func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
-	exp, err := getExpirationUnverified(tokenResp.AccessToken)
+	exp, err := token.GetExpirationUnverified(tokenResp.AccessToken)
 	if err != nil {
 		redirect.ToLoginWithError(w, r, err.Error())
 	}
@@ -127,19 +109,6 @@ func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenRe
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
 	})
-	return false
-}
-
-func setUserRole(w http.ResponseWriter, r *http.Request, userRole string) bool {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "app_role",
-		Value:    userRole,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   r.TLS != nil,
-		SameSite: http.SameSiteLaxMode,
-	})
-
 	return false
 }
 
