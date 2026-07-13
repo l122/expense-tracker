@@ -13,7 +13,7 @@ import (
 	"github.com/l122/expense-tracker/pkgs/token"
 )
 
-func (s *service) GetUserById(ctx context.Context, userId string) (domain.User, error) {
+func (s *service) GetUserByAuthId(ctx context.Context, userId string) (domain.User, error) {
 	var emptyUser domain.User
 	token, ok := token.FromContext(ctx)
 	if !ok {
@@ -21,7 +21,7 @@ func (s *service) GetUserById(ctx context.Context, userId string) (domain.User, 
 	}
 
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
-	endpoint := fmt.Sprintf("%s/%s?select=*&id=eq.%s", url, tableName, userId)
+	endpoint := fmt.Sprintf("%s/%s?select=*&auth_id=eq.%s", url, tableName, userId)
 
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {

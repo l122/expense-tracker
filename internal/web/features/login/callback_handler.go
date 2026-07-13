@@ -15,6 +15,7 @@ import (
 	"github.com/l122/expense-tracker/pkgs/appRole"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
 type CallbackHandler struct {
@@ -52,7 +53,7 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	ctx = token.NewContext(ctx, tokenResp.AccessToken)
 
-	user, err := h.db.GetUserById(ctx, tokenResp.User.ID)
+	user, err := h.db.GetUserByAuthId(ctx, tokenResp.User.ID)
 	if err != nil {
 		redirect.ToLoginWithError(w, r, "user not found")
 		return
@@ -69,6 +70,11 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	shouldReturn = appRole.ToRequest(w, r, user.AppRole, exp)
+	if shouldReturn {
+		return
+	}
+
+	shouldReturn = userid.ToRequest(w, r, user.Id, exp)
 	if shouldReturn {
 		return
 	}
