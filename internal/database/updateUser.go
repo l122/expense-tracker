@@ -12,7 +12,6 @@ import (
 
 	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/l122/expense-tracker/pkgs/myhttp"
-	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
 
@@ -26,17 +25,13 @@ func (s *service) DisableUser(ctx context.Context, userId string) (domain.User, 
 
 func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, error) {
 	var emptyUser domain.User
-	token, ok := token.FromContext(ctx)
-	if !ok {
-		return emptyUser, errors.New("Failed to extract token")
-	}
 
-	req, err := createRequest(userId, enable, token)
+	req, err := createRequest(userId, enable)
 	if err != nil {
 		return emptyUser, err
 	}
 
-	resp, err := myhttp.Send(req)
+	resp, err := myhttp.Send(ctx, req)
 	if err != nil {
 		return emptyUser, err
 	}
@@ -61,7 +56,7 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 	return users[0], nil
 }
 
-func createRequest(userId string, enable bool, token string) (*http.Request, error) {
+func createRequest(userId string, enable bool) (*http.Request, error) {
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
 	endpoint := fmt.Sprintf("%s/%s?id=eq.%s", url, tableName, userId)
 	payload := map[string]interface{}{
@@ -82,7 +77,6 @@ func createRequest(userId string, enable bool, token string) (*http.Request, err
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Prefer", "return=representation")
-	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
-	req.Header.Set("Authorization", "Bearer "+token)
+
 	return req, nil
 }

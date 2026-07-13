@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/l122/expense-tracker/pkgs/myhttp"
-	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
 
@@ -20,17 +18,13 @@ const (
 
 func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 	var result []domain.User
-	token, ok := token.FromContext(ctx)
-	if !ok {
-		return result, errors.New("Failed to extract token")
-	}
 
-	req, err := createGetUsersRequest(token)
+	req, err := createGetUsersRequest()
 	if err != nil {
 		return result, err
 	}
 
-	resp, err := myhttp.Send(req)
+	resp, err := myhttp.Send(ctx, req)
 	if err != nil {
 		return result, err
 	}
@@ -50,7 +44,7 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 	return result, nil
 }
 
-func createGetUsersRequest(token string) (*http.Request, error) {
+func createGetUsersRequest() (*http.Request, error) {
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
 	endpoint := fmt.Sprintf("%s/%s?select=*", url, tableName)
 
@@ -60,7 +54,5 @@ func createGetUsersRequest(token string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
-	req.Header.Set("Authorization", "Bearer "+token)
 	return req, nil
 }
