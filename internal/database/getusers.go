@@ -25,17 +25,10 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 		return result, errors.New("Failed to extract token")
 	}
 
-	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
-	endpoint := fmt.Sprintf("%s/%s?select=*", url, tableName)
-
-	req, err := http.NewRequest("GET", endpoint, nil)
+	req, err := createGetUsersRequest(token)
 	if err != nil {
-		fmt.Printf("Failed to create request: %v\n", err)
 		return result, err
 	}
-
-	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
-	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := myhttp.Send(req)
 	if err != nil {
@@ -55,4 +48,19 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 	}
 
 	return result, nil
+}
+
+func createGetUsersRequest(token string) (*http.Request, error) {
+	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
+	endpoint := fmt.Sprintf("%s/%s?select=*", url, tableName)
+
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		fmt.Printf("Failed to create request: %v\n", err)
+		return nil, err
+	}
+
+	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
+	req.Header.Set("Authorization", "Bearer "+token)
+	return req, nil
 }
