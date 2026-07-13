@@ -3,9 +3,6 @@ package login
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -153,14 +150,6 @@ func getTokenRequest(r *http.Request, w http.ResponseWriter) (*http.Request, boo
 		return nil, true
 	}
 	return request, false
-}
-
-// Cryptographic Cookie Signature Utilities
-func signValue(value, secret string) string {
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(value))
-	signature := hex.EncodeToString(mac.Sum(nil))
-	return value + "." + signature
 }
 
 func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier string) (*http.Request, error) {
