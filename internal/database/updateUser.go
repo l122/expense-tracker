@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/l122/expense-tracker/internal/domain"
-	"github.com/l122/expense-tracker/pkgs/myhttp"
+	"github.com/l122/expense-tracker/pkgs/dbhttp"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
 
@@ -31,7 +31,7 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 		return emptyUser, err
 	}
 
-	resp, err := myhttp.Send(ctx, req)
+	resp, err := dbhttp.Send(ctx, req)
 	if err != nil {
 		return emptyUser, err
 	}

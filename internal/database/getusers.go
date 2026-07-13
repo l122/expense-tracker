@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/l122/expense-tracker/internal/domain"
-	"github.com/l122/expense-tracker/pkgs/myhttp"
+	"github.com/l122/expense-tracker/pkgs/dbhttp"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
 
@@ -24,7 +24,7 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 		return result, err
 	}
 
-	resp, err := myhttp.Send(ctx, req)
+	resp, err := dbhttp.Send(ctx, req)
 	if err != nil {
 		return result, err
 	}
