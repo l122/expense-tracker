@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/l122/expense-tracker/pkgs/myhttp"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
@@ -36,10 +37,8 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := myhttp.Send(req)
 	if err != nil {
-		fmt.Printf("HTTP request failed: %v\n", err)
 		return result, err
 	}
 	defer resp.Body.Close()
