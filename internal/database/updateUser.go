@@ -12,6 +12,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/users"
 )
 
 func (s *service) EnableUser(ctx context.Context, userId string) (domain.User, error) {
@@ -66,15 +67,8 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 		return emptyUser, err
 	}
 
-	bodyBytes, err := io.ReadAll(resp.Body)
+	users, err := users.FromHttpResponse(resp, emptyUser)
 	if err != nil {
-		fmt.Printf("Failed to read body: %v\n", err)
-		return emptyUser, err
-	}
-
-	var users []domain.User
-	if err := json.Unmarshal(bodyBytes, &users); err != nil {
-		fmt.Printf("Failed to parse JSON: %v\n", err)
 		return emptyUser, err
 	}
 
