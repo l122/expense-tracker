@@ -27,7 +27,7 @@ func (s *Server) RegisterRoutes() *Handler {
 	templates := web.ParseTemplates()
 
 	router.Handle("GET /", index.NewIndexHandler(index.NewIndexView(templates)))
-	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates)))
+	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
 	router.HandleFunc("GET /health", s.HealthHandler)
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))

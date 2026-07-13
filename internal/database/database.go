@@ -20,15 +20,9 @@ type Service interface {
 	// Health() map[string]string
 	Health() string
 
-	// SeedDb() error
-
-	// // Users
-	// GetUserByEmail(email string) (domain.User, error)
-	// CreateUser(name, email, username, role string) (domain.User, error)
-
-	// // TODO: refactor
 	GetUsers(ctx context.Context) ([]domain.User, error)
 	GetUserByAuthId(ctx context.Context, userId string) (domain.User, error)
+	GetUserById(ctx context.Context, userId int) (domain.User, error)
 
 	EnableUser(ctx context.Context, userId int) (domain.User, error)
 	DisableUser(ctx context.Context, userId int) (domain.User, error)

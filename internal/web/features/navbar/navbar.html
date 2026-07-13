@@ -15,7 +15,7 @@
         <a class="navbar-brand d-flex align-items-center" href="#">
             <img src="https://lh3.googleusercontent.com/a/ACg8ocKtGv7wVVs1MNlqZJChEPjjoh19-eiG5akBixHtayVru_WaTg=s96-c"
                 alt="Avatar" width="30" height="30" class="rounded-circle object-fit-cover me-2">
-            <span class="fw-bold fs-7">John Doe</span>
+            <span class="fw-bold fs-7">{{.FullName}}</span>
         </a>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
@@ -32,7 +32,7 @@
                 <a class="nav-link" hx-get="/about" href="/about" hx-target="#main_page"
                     data-bs-dismiss="offcanvas">About</a>
             </li>
-            {{if eq . "admin"}}
+            {{if eq .AppRole "admin"}}
             <li class="nav-item">
                 <a class="nav-link" hx-get="/admin" href="/admin" hx-target="#main_page"
                     data-bs-dismiss="offcanvas">Admin</a>
