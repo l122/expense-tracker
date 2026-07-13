@@ -15,15 +15,15 @@ import (
 	"github.com/l122/expense-tracker/pkgs/users"
 )
 
-func (s *service) EnableUser(ctx context.Context, userId string) (domain.User, error) {
+func (s *service) EnableUser(ctx context.Context, userId int) (domain.User, error) {
 	return patchEnable(ctx, userId, true)
 }
 
-func (s *service) DisableUser(ctx context.Context, userId string) (domain.User, error) {
+func (s *service) DisableUser(ctx context.Context, userId int) (domain.User, error) {
 	return patchEnable(ctx, userId, false)
 }
 
-func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, error) {
+func patchEnable(ctx context.Context, userId int, enable bool) (domain.User, error) {
 	var emptyUser domain.User
 
 	req, err := createRequest(userId, enable)
@@ -56,9 +56,9 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 	return users[0], nil
 }
 
-func createRequest(userId string, enable bool) (*http.Request, error) {
+func createRequest(userId int, enable bool) (*http.Request, error) {
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
-	endpoint := fmt.Sprintf("%s/%s?id=eq.%s", url, tableName, userId)
+	endpoint := fmt.Sprintf("%s/%s?id=eq.%d", url, tableName, userId)
 	payload := map[string]interface{}{
 		"enabled": enable,
 	}

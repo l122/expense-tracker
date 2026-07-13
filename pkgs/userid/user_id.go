@@ -26,6 +26,18 @@ func FromRequest(r *http.Request) (int, error) {
 	return res, nil
 }
 
+func FromUrlPath(r *http.Request) (int, error) {
+	userId := r.PathValue("id")
+
+	res, err := strconv.Atoi(userId)
+	if err != nil {
+		fmt.Println("Error parsing string:", err)
+		return 0, err
+	}
+
+	return res, nil
+}
+
 func ToRequest(w http.ResponseWriter, r *http.Request, userId int, exp time.Time) bool {
 	http.SetCookie(w, &http.Cookie{
 		Name:     idKey,

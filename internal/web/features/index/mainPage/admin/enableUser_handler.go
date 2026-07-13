@@ -10,6 +10,7 @@ import (
 	"github.com/l122/expense-tracker/pkgs/appRole"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
 type EnableUserHandler struct {
@@ -48,7 +49,12 @@ func (t *EnableUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx = token.NewContext(ctx, accessToken)
 
-	userId := r.PathValue("id")
+	userId, err := userid.FromUrlPath(r)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 	user, err := t.repo.EnableUser(ctx, userId)
 	if err != nil {
 		// TODO: log

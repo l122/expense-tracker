@@ -30,8 +30,8 @@ type Service interface {
 	GetUsers(ctx context.Context) ([]domain.User, error)
 	GetUserByAuthId(ctx context.Context, userId string) (domain.User, error)
 
-	EnableUser(ctx context.Context, userId string) (domain.User, error)
-	DisableUser(ctx context.Context, userId string) (domain.User, error)
+	EnableUser(ctx context.Context, userId int) (domain.User, error)
+	DisableUser(ctx context.Context, userId int) (domain.User, error)
 	// DeleteUsers(id int) error
 
 	GetAuthClient() gotrue.Client
