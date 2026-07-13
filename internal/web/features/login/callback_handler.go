@@ -84,6 +84,13 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Patch Avatar
+	_, err = h.db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)
+	if err != nil {
+		// TODO:log
+		fmt.Printf("error updating avatar url: %s", err)
+	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
