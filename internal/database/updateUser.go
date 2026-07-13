@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/l122/expense-tracker/pkgs/myhttp"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/users"
 )
@@ -30,33 +31,13 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 		return emptyUser, errors.New("Failed to extract token")
 	}
 
-	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
-	endpoint := fmt.Sprintf("%s/%s?id=eq.%s", url, tableName, userId)
-	payload := map[string]interface{}{
-		"enabled": enable,
-	}
-
-	jsonData, err := json.Marshal(payload)
+	req, err := createRequest(userId, enable, token)
 	if err != nil {
-		fmt.Printf("Error marshaling JSON: %v\n", err)
 		return emptyUser, err
 	}
 
-	req, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(jsonData))
+	resp, err := myhttp.Send(req)
 	if err != nil {
-		fmt.Printf("Failed to patch user: %v\n", err)
-		return emptyUser, err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Prefer", "return=representation")
-	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("HTTP request failed: %v\n", err)
 		return emptyUser, err
 	}
 	defer resp.Body.Close()
@@ -78,4 +59,30 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 	}
 
 	return users[0], nil
+}
+
+func createRequest(userId string, enable bool, token string) (*http.Request, error) {
+	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
+	endpoint := fmt.Sprintf("%s/%s?id=eq.%s", url, tableName, userId)
+	payload := map[string]interface{}{
+		"enabled": enable,
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Printf("Error marshaling JSON: %v\n", err)
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", endpoint, bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Printf("Failed to patch user: %v\n", err)
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Prefer", "return=representation")
+	req.Header.Set("apikey", os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
+	req.Header.Set("Authorization", "Bearer "+token)
+	return req, nil
 }
