@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/users"
 )
 
 const (
@@ -50,14 +50,8 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 		return result, err
 	}
 
-	bodyBytes, err := io.ReadAll(resp.Body)
+	result, err = users.FromHttpResponse(resp)
 	if err != nil {
-		fmt.Printf("Failed to read body: %v\n", err)
-		return result, err
-	}
-
-	if err := json.Unmarshal(bodyBytes, &result); err != nil {
-		fmt.Printf("Failed to parse JSON: %v\n", err)
 		return result, err
 	}
 

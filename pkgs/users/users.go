@@ -9,7 +9,7 @@ import (
 	"github.com/l122/expense-tracker/internal/domain"
 )
 
-func FromHttpResponse(resp *http.Response, emptyUser domain.User) ([]domain.User, error) {
+func FromHttpResponse(resp *http.Response) ([]domain.User, error) {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Failed to read body: %v\n", err)
@@ -21,5 +21,6 @@ func FromHttpResponse(resp *http.Response, emptyUser domain.User) ([]domain.User
 		fmt.Printf("Failed to parse JSON: %v\n", err)
 		return nil, err
 	}
+
 	return users, nil
 }

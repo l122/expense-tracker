@@ -48,7 +48,7 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 		return emptyUser, err
 	}
 
-	users, err := users.FromHttpResponse(resp, emptyUser)
+	users, err := users.FromHttpResponse(resp)
 	if err != nil {
 		return emptyUser, err
 	}
