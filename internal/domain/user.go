@@ -1,9 +1,9 @@
 package domain
 
 type User struct {
-	Id        string
-	Full_name string
-	Email     string
-	App_role  string
-	Enabled   bool
+	Id       string `json:"id"`
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	AppRole  string `json:"app_role"`
+	Enabled  bool   `json:"enabled"`
 }

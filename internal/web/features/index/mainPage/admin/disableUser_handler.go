@@ -29,7 +29,7 @@ func NewDisableUserHandler(service database.Service, adminView *AdminView) *Disa
 func (t *DisableUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appRole, err := appRole.FromRequest(r)
 	if err != nil {
-		redirect.ToLoginWithError(w, r, "no app_role in request")
+		redirect.ToLoginWithError(w, r, "no AppRole in request")
 		return
 	}
 

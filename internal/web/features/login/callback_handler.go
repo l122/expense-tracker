@@ -71,7 +71,7 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirect.ToLoginWithError(w, r, err.Error())
 		return
 	}
-	shouldReturn = appRole.ToRequest(w, r, user.App_role, exp)
+	shouldReturn = appRole.ToRequest(w, r, user.AppRole, exp)
 	if shouldReturn {
 		return
 	}

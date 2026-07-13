@@ -15,9 +15,9 @@
             {{range $index, $user := .}}
             <tr>
                 <th scope="row">{{$index}}</th>
-                <td>{{$user.Full_name}}</td>
+                <td>{{$user.FullName}}</td>
                 <td>{{$user.Email}}</td>
-                <td>{{$user.App_role}}</td>
+                <td>{{$user.AppRole}}</td>
                 <td>
                     {{if $user.Enabled}}
                     <button class="btn btn-warning" hx-patch="/admin/{{$user.Id}}/disable" hx-target="#usersContainer"

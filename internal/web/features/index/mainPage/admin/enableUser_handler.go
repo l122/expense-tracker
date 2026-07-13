@@ -30,7 +30,7 @@ func (t *EnableUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check role
 	appRole, err := appRole.FromRequest(r)
 	if err != nil {
-		redirect.ToLoginWithError(w, r, "no app_role in request")
+		redirect.ToLoginWithError(w, r, "no AppRole in request")
 		return
 	}
 
