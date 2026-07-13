@@ -67,16 +67,20 @@ func patchEnable(ctx context.Context, userId string, enable bool) (domain.User, 
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
-	fmt.Println("BODY:", string(bodyBytes))
 	if err != nil {
 		fmt.Printf("Failed to read body: %v\n", err)
 		return emptyUser, err
 	}
 
 	var users []domain.User
-	if err := json.Unmarshal(bodyBytes, &users); err != nil || len(users) == 0 {
+	if err := json.Unmarshal(bodyBytes, &users); err != nil {
 		fmt.Printf("Failed to parse JSON: %v\n", err)
 		return emptyUser, err
+	}
+
+	if len(users) == 0 {
+		fmt.Println("error updating user")
+		return emptyUser, errors.New("error updating user")
 	}
 
 	return users[0], nil
