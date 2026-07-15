@@ -10,6 +10,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
 	"github.com/l122/expense-tracker/internal/web/features/login"
 	"github.com/l122/expense-tracker/internal/web/features/navbar"
 )
@@ -37,6 +38,7 @@ func (s *Server) RegisterRoutes() *Handler {
 	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("GET /admin/{id}", user.NewHandler(s.db, user.NewView(templates)))
 	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
 
