@@ -12,6 +12,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
 	"github.com/l122/expense-tracker/internal/web/features/login"
+	"github.com/l122/expense-tracker/internal/web/features/logout"
 	"github.com/l122/expense-tracker/internal/web/features/navbar"
 )
 
@@ -35,6 +36,7 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	// Auth
 	router.Handle("GET /login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /logout", logout.New())
 	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
