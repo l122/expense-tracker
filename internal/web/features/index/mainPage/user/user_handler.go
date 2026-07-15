@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/l122/expense-tracker/internal/database"
@@ -23,7 +22,6 @@ func NewHandler(repo database.Service, view *UserView) *UserHandler {
 }
 
 func (h *UserHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println("in user handler")
 	h.view.Index(w, domain.User{
 		Id:        1,
 		FullName:  "Mino",

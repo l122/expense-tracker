@@ -1,5 +1,15 @@
 {{define "user"}}
 
-<p>{{.FullName}}</p>
 
+<div class="card" style="width: 18rem;">
+    <img src="{{.AvatarUrl}}" class="card-img-top" alt="Avatar">
+    <div class="card-body">
+        <h5 class="card-title">{{.FullName}}</h5>
+        <p class="card-text">{{.Email}}</p>
+    </div>
+    <div class="card-body">
+        <a href="#" class="card-link">Delete</a>
+        <a href="#" class="card-link">Logout</a>
+    </div>
+</div>
 {{end}}

@@ -13,7 +13,7 @@
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
     <div class="offcanvas-header border-bottom">
         <a class="navbar-brand d-flex align-items-center" href="/admin/{{.Id}}" hx-get="/admin/{{.Id}}"
-            hx-target="#main_page">
+            hx-target="#main_page" data-bs-dismiss="offcanvas">
             <img src="{{.AvatarUrl}}" alt="Avatar" width="30" height="30" class="rounded-circle object-fit-cover me-2">
             <span class="fw-bold fs-7">{{.FullName}}</span>
         </a>
