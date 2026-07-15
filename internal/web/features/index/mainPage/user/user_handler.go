@@ -1,10 +1,15 @@
 package user
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/l122/expense-tracker/internal/database"
-	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/l122/expense-tracker/pkgs/redirect"
+	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
 type UserHandler struct {
@@ -21,11 +26,26 @@ func NewHandler(repo database.Service, view *UserView) *UserHandler {
 	}
 }
 
-func (h *UserHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
-	h.view.Index(w, domain.User{
-		Id:        1,
-		FullName:  "Mino",
-		Email:     "minolyndo@gmail.com",
-		AvatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocKCygLK4XMNa3M8arfNNOnLbaMQ4PXa94zlKTLKnQOGqqexNR0=s96-c",
-	})
+func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	accessToken, err := token.FromRequest(r)
+	if err != nil {
+		redirect.ToLoginWithError(w, r, "no token in request")
+		return
+	}
+	ctx = token.NewContext(ctx, accessToken)
+
+	userId, err := userid.FromUrlPath(r)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+	user, err := h.repo.GetUserById(ctx, userId)
+	if err != nil {
+		// TODO: log
+	}
+
+	h.view.Index(w, user)
 }
