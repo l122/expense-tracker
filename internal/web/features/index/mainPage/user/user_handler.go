@@ -45,6 +45,7 @@ func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user, err := h.repo.GetUserById(ctx, userId)
 	if err != nil {
 		// TODO: log
+		fmt.Printf("User not found: %v\n", err)
 	}
 
 	h.view.Index(w, user)
