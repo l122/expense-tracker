@@ -27,6 +27,15 @@ func FromRequest(r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
+func FromRequestOrPanic(r *http.Request) string {
+	accessToken, err := FromRequest(r)
+	if err != nil {
+		panic("no token in request")
+	}
+
+	return accessToken
+}
+
 func NewContext(ctx context.Context, token string) context.Context {
 	return context.WithValue(ctx, tokenKey, token)
 }

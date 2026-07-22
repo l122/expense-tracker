@@ -26,6 +26,15 @@ func FromRequest(r *http.Request) (int, error) {
 	return res, nil
 }
 
+func FromRequestOrPanic(r *http.Request) int {
+	userId, err := FromRequest(r)
+	if err != nil {
+		panic("no user id in request")
+	}
+
+	return userId
+}
+
 func FromUrlPath(r *http.Request) (int, error) {
 	userId := r.PathValue("id")
 

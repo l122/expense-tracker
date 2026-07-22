@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/l122/expense-tracker/internal/database"
-	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/userid"
 )
@@ -29,11 +28,7 @@ func NewHandler(repo database.Service, view *UserView) *UserHandler {
 func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	accessToken, err := token.FromRequest(r)
-	if err != nil {
-		redirect.ToLoginWithError(w, r, "no token in request")
-		return
-	}
+	accessToken := token.FromRequestOrPanic(r)
 	ctx = token.NewContext(ctx, accessToken)
 
 	userId, err := userid.FromUrlPath(r)
