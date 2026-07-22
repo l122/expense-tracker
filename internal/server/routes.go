@@ -24,18 +24,27 @@ func (s *Server) RegisterRoutes() http.Handler {
 		Handler: router,
 	}
 
-	templates := web.ParseTemplates()
-
-	// Auth
-	router.Handle("GET /login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
-	router.Handle("GET /logout", logout.New())
-	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
-	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
-
 	router.Handle("/", s.registerUserRoutes())
+	router.Handle("/auth/", s.registerAuthRoutes())
 	router.Handle("/admin/", s.registerAdminRoutes())
 
 	return handler
+}
+
+func (s *Server) registerAuthRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
+	}
+
+	templates := web.ParseTemplates()
+
+	router.Handle("GET /auth/logout", logout.New())
+	router.Handle("GET /auth/login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
+
+	return chainMiddlewares(handler, rateLimitMiddleware, recoveryMiddleware)
 }
 
 func (s *Server) registerUserRoutes() http.Handler {
@@ -51,7 +60,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
 
-	return chainMiddlewares(handler, authMiddleware, userRoleCheckMiddleware, recoveryMiddleware)
+	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, userRoleCheckMiddleware, recoveryMiddleware)
 }
 
 func (s *Server) registerAdminRoutes() http.Handler {
@@ -67,5 +76,5 @@ func (s *Server) registerAdminRoutes() http.Handler {
 	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
 
-	return chainMiddlewares(handler, authMiddleware, adminRoleCheckMiddleware, recoveryMiddleware)
+	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, adminRoleCheckMiddleware, recoveryMiddleware)
 }

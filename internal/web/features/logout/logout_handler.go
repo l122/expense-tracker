@@ -19,7 +19,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(
 		w,
 		r,
-		"/login",
+		"/auth/login",
 		http.StatusTemporaryRedirect,
 	)
 }
