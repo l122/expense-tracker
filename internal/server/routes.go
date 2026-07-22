@@ -2,7 +2,10 @@ package server
 
 import (
 	"net/http"
+	"os"
+	"strings"
 
+	"github.com/gorilla/csrf"
 	"github.com/l122/expense-tracker/internal/web"
 	"github.com/l122/expense-tracker/internal/web/features/index"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
@@ -28,7 +31,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	router.Handle("/auth/", s.registerAuthRoutes())
 	router.Handle("/admin/", s.registerAdminRoutes())
 
-	return handler
+	origins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
+
+	csrfMiddleware := csrf.Protect(
+		[]byte(os.Getenv("CSRF_KEY")),
+		csrf.Secure(false),
+		csrf.TrustedOrigins(origins),
+	)
+
+	return csrfMiddleware(handler)
 }
 
 func (s *Server) registerAuthRoutes() http.Handler {

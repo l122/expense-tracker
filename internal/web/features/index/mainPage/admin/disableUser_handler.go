@@ -70,5 +70,5 @@ func (t *DisableUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t.adminView.Index(w, users)
+	t.adminView.Index(w, r, users)
 }

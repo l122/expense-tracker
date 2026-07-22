@@ -52,5 +52,5 @@ func (t *AdminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// TODO: log
 	}
 
-	t.adminView.Index(w, users)
+	t.adminView.Index(w, r, users)
 }
