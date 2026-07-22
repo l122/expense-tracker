@@ -20,7 +20,7 @@ type Handler struct {
 	http.Handler
 }
 
-func (s *Server) RegisterRoutes() *Handler {
+func (s *Server) RegisterRoutes() http.Handler {
 	router := http.NewServeMux()
 	handler := &Handler{
 		Handler: router,
@@ -28,7 +28,7 @@ func (s *Server) RegisterRoutes() *Handler {
 
 	templates := web.ParseTemplates()
 
-	router.Handle("GET /", index.NewIndexHandler(index.NewIndexView(templates)))
+	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates)))
 	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
 	router.HandleFunc("GET /health", s.HealthHandler)
@@ -39,12 +39,31 @@ func (s *Server) RegisterRoutes() *Handler {
 	router.Handle("GET /logout", logout.New())
 	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
-	router.Handle("GET /admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
+	// router.Handle("GET /admin", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
+	// router.Handle("GET /admin/{id}", user.NewHandler(s.db, user.NewView(templates)))
+	// router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
+	// router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
+
+	adminHandler := s.registerAdminRoutes()
+	router.Handle("/admin/", adminHandler)
+
+	return handler
+}
+
+func (s *Server) registerAdminRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
+	}
+
+	templates := web.ParseTemplates()
+
+	router.Handle("GET /admin/", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("GET /admin/{id}", user.NewHandler(s.db, user.NewView(templates)))
 	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
 
-	return handler
+	return chainMiddlewares(handler, authMiddleware, adminRoleCheckMiddleware, recoveryMiddleware)
 }
 
 func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
