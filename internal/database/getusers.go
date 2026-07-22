@@ -46,7 +46,7 @@ func (s *service) GetUsers(ctx context.Context) ([]domain.User, error) {
 
 func createGetUsersRequest() (*http.Request, error) {
 	url := os.Getenv("SUPABASE_URL") + "/rest/v1"
-	endpoint := fmt.Sprintf("%s/%s?select=*", url, tableName)
+	endpoint := fmt.Sprintf("%s/%s?select=*&order=id.asc", url, tableName)
 
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
