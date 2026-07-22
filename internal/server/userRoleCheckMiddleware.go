@@ -16,7 +16,7 @@ func userRoleCheckMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if appRole != "user" {
+		if appRole != "user" && appRole != "admin" {
 			// TODO: log and redirect to an error page
 			return
 		}

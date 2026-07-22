@@ -26,21 +26,32 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	templates := web.ParseTemplates()
 
-	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates)))
-	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
-	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
-	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
-
 	// Auth
 	router.Handle("GET /login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /logout", logout.New())
 	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
 	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
 
-	adminHandler := s.registerAdminRoutes()
-	router.Handle("/admin/", adminHandler)
+	router.Handle("/", s.registerUserRoutes())
+	router.Handle("/admin/", s.registerAdminRoutes())
 
 	return handler
+}
+
+func (s *Server) registerUserRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
+	}
+
+	templates := web.ParseTemplates()
+
+	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates)))
+	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
+	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
+	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
+
+	return chainMiddlewares(handler, authMiddleware, userRoleCheckMiddleware, recoveryMiddleware)
 }
 
 func (s *Server) registerAdminRoutes() http.Handler {
