@@ -57,7 +57,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
 
-	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, userRoleCheckMiddleware, recoveryMiddleware)
+	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, userRoleCheckMiddleware, userIdCheckMiddleware, recoveryMiddleware)
 }
 
 func (s *Server) registerAdminRoutes() http.Handler {
@@ -73,5 +73,5 @@ func (s *Server) registerAdminRoutes() http.Handler {
 	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
 
-	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, adminRoleCheckMiddleware, recoveryMiddleware)
+	return chainMiddlewares(handler, authMiddleware, rateLimitMiddleware, adminRoleCheckMiddleware, userIdCheckMiddleware, recoveryMiddleware)
 }
