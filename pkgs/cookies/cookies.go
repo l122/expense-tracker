@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+func FromRequest(r *http.Request, name string) (*http.Cookie, error) {
+	result, err := r.Cookie(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func ClearAll(w http.ResponseWriter, r *http.Request) {
 	cookies := r.Cookies()
 

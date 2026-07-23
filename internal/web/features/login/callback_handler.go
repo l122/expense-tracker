@@ -125,7 +125,7 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 }
 
 func getTokenRequest(r *http.Request, w http.ResponseWriter) (*http.Request, bool) {
-	cookie, err := r.Cookie(verifierCookieName)
+	cookie, err := cookies.FromRequest(r, verifierCookieName)
 	if err != nil {
 		redirect.ToLoginWithError(w, r, "missing pkce cookie")
 		return nil, true
