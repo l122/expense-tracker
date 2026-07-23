@@ -18,8 +18,12 @@ const (
 	tokenKey             key = 0
 )
 
-func FromRequestHeader(r *http.Request) string {
-	return r.Header.Get("Authorization")
+func Validate(token string) error {
+	// TODO: validate expiration
+	// if token == "Bearer valid-token" {
+	// 	return "12345"
+	// }
+	return nil
 }
 
 func FromRequest(r *http.Request) (string, error) {

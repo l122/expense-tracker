@@ -12,26 +12,18 @@ func authMiddleware(next http.Handler) http.Handler {
 		accessToken, err := token.FromRequest(r)
 		if err != nil {
 			// TODO:log
-			redirect.ToLoginWithError(w, r, "no token in request")
+			redirect.ToLoginWithError(w, r, "No access token in request")
 			return
 		}
-		ctx := token.NewContext(r.Context(), accessToken)
 
-		token := token.FromRequestHeader(r)
-		err = validateToken(token)
+		err = token.Validate(accessToken)
 		if err != nil {
 			// TODO:log
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			redirect.ToLoginWithError(w, r, "Invalid token")
 			return
 		}
+
+		ctx := token.NewContext(r.Context(), accessToken)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func validateToken(token string) error {
-	// TODO: validate expiration
-	// if token == "Bearer valid-token" {
-	// 	return "12345"
-	// }
-	return nil
 }
