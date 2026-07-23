@@ -26,6 +26,18 @@ func Validate(token string) error {
 	return nil
 }
 
+func ToRequest(w http.ResponseWriter, r *http.Request, value string, exp time.Time) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     accessToken,
+		Value:    value,
+		Path:     "/",
+		Expires:  exp,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
 func FromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(accessToken)
 	if err != nil {

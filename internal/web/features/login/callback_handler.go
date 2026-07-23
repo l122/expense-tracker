@@ -17,6 +17,7 @@ import (
 	"github.com/l122/expense-tracker/pkgs/appRole"
 	"github.com/l122/expense-tracker/pkgs/cookies"
 	"github.com/l122/expense-tracker/pkgs/redirect"
+	"github.com/l122/expense-tracker/pkgs/refreshToken"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/userid"
 )
@@ -83,14 +84,8 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	appRole.ToRequest(w, r, user.AppRole, exp)
 	userid.ToRequest(w, r, user.Id, exp)
-	cookies.Set(w, r, accessToken, tokenResp.AccessToken, exp)
-	cookies.Set(
-		w,
-		r,
-		refreshToken,
-		tokenResp.RefreshToken,
-		time.Now().Add(time.Duration(refreshTokenDurationHours)*time.Hour),
-	)
+	token.ToRequest(w, r, tokenResp.AccessToken, exp)
+	refreshToken.ToRequest(w, r, tokenResp.RefreshToken)
 
 	// Patch Avatar
 	_, err = h.db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)

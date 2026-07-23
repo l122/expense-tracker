@@ -16,12 +16,20 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		err = token.Validate(accessToken)
-		if err != nil {
-			// TODO:log
-			redirect.ToLoginWithError(w, r, "Invalid token")
-			return
-		}
+		// exp, err := token.GetExpirationUnverified(accessToken)
+		// if err != nil {
+		// 	redirect.ToLoginWithError(w, r, "Invalid token")
+		// 	return
+		// }
+
+		// if exp.Compare(time.Now()) < 1 {
+		// 	// TODO: exchange token
+
+		// 	if err != nil {
+		// 		redirect.ToLoginWithError(w, r, "")
+		// 		return
+		// 	}
+		// }
 
 		ctx := token.NewContext(r.Context(), accessToken)
 		next.ServeHTTP(w, r.WithContext(ctx))

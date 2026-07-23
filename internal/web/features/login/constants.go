@@ -7,6 +7,4 @@ const (
 	contentType        = "Content-Type"
 	applicationJson    = "application/json"
 	apiKey             = "apikey"
-	accessToken        = "access_token"
-	refreshToken       = "refresh_token"
 )
