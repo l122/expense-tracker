@@ -5,8 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"time"
 
@@ -18,12 +20,21 @@ import (
 	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
+var refreshTokenDurationHours int
+
 type CallbackHandler struct {
 	view *LoginView
 	db   database.Service
 }
 
 func NewCallbackHandler(view *LoginView, db database.Service) *CallbackHandler {
+	duration, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_DURATION_HOURS"))
+	if err != nil {
+		log.Fatal("NewCallbackHandler: error parsing REFRESH_TOKEN_DURATION_HOURS:", err)
+	}
+
+	refreshTokenDurationHours = duration
+
 	return &CallbackHandler{
 		view: view,
 		db:   db,
@@ -72,7 +83,13 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appRole.ToRequest(w, r, user.AppRole, exp)
 	userid.ToRequest(w, r, user.Id, exp)
 	cookies.Set(w, r, accessToken, tokenResp.AccessToken, exp)
-	cookies.Set(w, r, refreshToken, tokenResp.RefreshToken, time.Now().Add(24*7*4*time.Hour))
+	cookies.Set(
+		w,
+		r,
+		refreshToken,
+		tokenResp.RefreshToken,
+		time.Now().Add(time.Duration(refreshTokenDurationHours)*time.Hour),
+	)
 
 	// Patch Avatar
 	_, err = h.db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)
