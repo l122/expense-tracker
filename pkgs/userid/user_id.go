@@ -47,7 +47,7 @@ func FromUrlPath(r *http.Request) (int, error) {
 	return res, nil
 }
 
-func ToRequest(w http.ResponseWriter, r *http.Request, userId int, exp time.Time) bool {
+func ToRequest(w http.ResponseWriter, r *http.Request, userId int, exp time.Time) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     idKey,
 		Value:    strconv.Itoa(userId),
@@ -57,6 +57,4 @@ func ToRequest(w http.ResponseWriter, r *http.Request, userId int, exp time.Time
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
 	})
-
-	return false
 }

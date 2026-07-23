@@ -18,7 +18,7 @@ func FromRequest(r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
-func ToRequest(w http.ResponseWriter, r *http.Request, userRole string, exp time.Time) bool {
+func ToRequest(w http.ResponseWriter, r *http.Request, userRole string, exp time.Time) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     appRole,
 		Value:    userRole,
@@ -28,6 +28,4 @@ func ToRequest(w http.ResponseWriter, r *http.Request, userRole string, exp time
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
 	})
-
-	return false
 }

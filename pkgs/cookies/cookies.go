@@ -33,3 +33,15 @@ func Clear(w http.ResponseWriter, r *http.Request, name string) {
 	}
 	http.SetCookie(w, expiredCookie)
 }
+
+func Set(w http.ResponseWriter, r *http.Request, name, value string, exp time.Time) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		Expires:  exp,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+}

@@ -69,20 +69,10 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirect.ToLoginWithError(w, r, err.Error())
 		return
 	}
-	shouldReturn = appRole.ToRequest(w, r, user.AppRole, exp)
-	if shouldReturn {
-		return
-	}
-
-	shouldReturn = userid.ToRequest(w, r, user.Id, exp)
-	if shouldReturn {
-		return
-	}
-
-	shouldReturn = setSessionTokens(w, r, tokenResp)
-	if shouldReturn {
-		return
-	}
+	appRole.ToRequest(w, r, user.AppRole, exp)
+	userid.ToRequest(w, r, user.Id, exp)
+	cookies.Set(w, r, accessToken, tokenResp.AccessToken, exp)
+	cookies.Set(w, r, refreshToken, tokenResp.RefreshToken, time.Now().Add(24*7*4*time.Hour))
 
 	// Patch Avatar
 	_, err = h.db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)
@@ -92,34 +82,6 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func setSessionTokens(w http.ResponseWriter, r *http.Request, tokenResp *TokenResponse) bool {
-	exp, err := token.GetExpirationUnverified(tokenResp.AccessToken)
-	if err != nil {
-		redirect.ToLoginWithError(w, r, err.Error())
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     accessToken,
-		Value:    tokenResp.AccessToken,
-		Path:     "/",
-		Expires:  exp,
-		HttpOnly: true,
-		Secure:   r.TLS != nil,
-		SameSite: http.SameSiteLaxMode,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     refreshToken,
-		Value:    tokenResp.RefreshToken,
-		Path:     "/",
-		Expires:  time.Now().Add(24 * 7 * 4 * time.Hour), // todo: move to configs
-		HttpOnly: true,
-		Secure:   r.TLS != nil,
-		SameSite: http.SameSiteLaxMode,
-	})
-	return false
 }
 
 func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.Request) (*TokenResponse, bool) {
