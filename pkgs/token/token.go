@@ -18,6 +18,10 @@ const (
 	tokenKey             key = 0
 )
 
+func FromRequestHeader(r *http.Request) string {
+	return r.Header.Get("Authorization")
+}
+
 func FromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(accessToken)
 	if err != nil {

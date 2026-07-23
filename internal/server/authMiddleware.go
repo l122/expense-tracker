@@ -17,7 +17,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		}
 		ctx := token.NewContext(r.Context(), accessToken)
 
-		token := r.Header.Get("Authorization")
+		token := token.FromRequestHeader(r)
 		err = validateToken(token)
 		if err != nil {
 			// TODO:log
