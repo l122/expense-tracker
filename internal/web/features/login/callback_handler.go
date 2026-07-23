@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -106,9 +107,9 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 	response, err := client.Do(request)
 	if err != nil || response.StatusCode > 299 || response.StatusCode < 200 {
 		// TODO: log
-		// body, _ := io.ReadAll(response.Body)
-		// fmt.Println("STATUS:", response.Status)
-		// fmt.Println("BODY:", string(body))
+		body, _ := io.ReadAll(response.Body)
+		fmt.Println("STATUS:", response.Status)
+		fmt.Println("BODY:", string(body))
 
 		redirect.ToLoginWithError(w, r, "failed to exchange token")
 		return nil, true
