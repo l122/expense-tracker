@@ -97,7 +97,7 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.Request) (*TokenResponse, bool) {
+func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.Request) (*token.TokenResponse, bool) {
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil || response.StatusCode > 299 || response.StatusCode < 200 {
@@ -111,7 +111,7 @@ func exchangeCodeForToken(request *http.Request, w http.ResponseWriter, r *http.
 	}
 	defer response.Body.Close()
 
-	var tokenResp = &TokenResponse{}
+	var tokenResp = &token.TokenResponse{}
 	if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
 		redirect.ToLoginWithError(w, r, "failed to decode userinfo")
 		return nil, true
