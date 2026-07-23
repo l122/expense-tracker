@@ -12,6 +12,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/pkgs/appRole"
+	"github.com/l122/expense-tracker/pkgs/cookies"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/userid"
@@ -149,7 +150,7 @@ func getTokenRequest(r *http.Request, w http.ResponseWriter) (*http.Request, boo
 		redirect.ToLoginWithError(w, r, "missing pkce cookie")
 		return nil, true
 	}
-	removeAuthCookie(w)
+	cookies.Clear(w, r, verifierCookieName)
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
@@ -190,15 +191,4 @@ func createTokenRequest(w http.ResponseWriter, r *http.Request, code, verifier s
 	request.Header.Set(apiKey, os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
 
 	return request, nil
-}
-
-func removeAuthCookie(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     verifierCookieName,
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-	})
 }

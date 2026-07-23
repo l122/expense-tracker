@@ -14,7 +14,7 @@ func New() *Handler {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	cookies.Clear(w, r)
+	cookies.ClearAll(w, r)
 
 	http.Redirect(
 		w,
