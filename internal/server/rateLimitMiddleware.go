@@ -11,9 +11,9 @@ import (
 )
 
 func rateLimitMiddleware(next http.Handler) http.Handler {
-	rps, err := strconv.Atoi(os.Getenv("rate_limit"))
+	rps, err := strconv.Atoi(os.Getenv("RATE_LIMIT"))
 	if err != nil {
-		log.Fatal("rateLimitMiddleware: error parsing rate_limit:", err)
+		log.Fatal("rateLimitMiddleware: error parsing RATE_LIMIT:", err)
 	}
 
 	limiter := rate.NewLimiter(rate.Limit(rps), rps)
