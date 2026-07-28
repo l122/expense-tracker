@@ -26,16 +26,16 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 			return
 		}
 
-		// exp, err := token.GetExpirationUnverified(accessToken)
-		_, err = token.GetExpirationUnverified(accessToken)
+		exp, err := token.GetExpirationUnverified(accessToken)
+		// _, err = token.GetExpirationUnverified(accessToken)
 		if err != nil {
 			redirect.ToLoginWithError(w, r, "Invalid token")
 			return
 		}
 
 		ctx := token.NewContext(r.Context(), accessToken)
-		if true {
-			// if exp.Compare(time.Now()) < 1 {
+		// if true {
+		if exp.Compare(time.Now()) < 1 {
 			rt, err := refreshToken.FromRequest(r)
 			if err != nil {
 				redirect.ToLoginWithError(w, r, "No refresh token in request")
@@ -60,7 +60,7 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 			defer response.Body.Close()
 
 			// Todo: FIX THIS ERROR
-			var tokenResp = &RefreshTokenResponse{}
+			var tokenResp = &token.TokenResponse{}
 			if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
 				// TODO: log
 				body, _ := io.ReadAll(response.Body)
@@ -71,10 +71,12 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 				return
 			}
 
+			if !tokenResp.User.UserMetadata.EmailVerified {
+				redirect.ToLoginWithError(w, r, "email not verified")
+			}
+
 			exp := time.Unix(int64(tokenResp.ExpiresAt), 0)
 			accessToken = tokenResp.AccessToken
-			token.ToRequest(w, r, accessToken, exp)
-			refreshToken.ToRequest(w, r, tokenResp.RefreshToken)
 
 			ctx = token.NewContext(r.Context(), accessToken)
 			user, err := db.GetUserByAuthId(ctx, tokenResp.User.ID)
@@ -88,6 +90,8 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 				return
 			}
 
+			token.ToRequest(w, r, accessToken, exp)
+			refreshToken.ToRequest(w, r, tokenResp.RefreshToken)
 			appRole.ToRequest(w, r, user.AppRole, exp)
 			userid.ToRequest(w, r, user.Id, exp)
 
@@ -101,18 +105,4 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-type RefreshTokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	ExpiresAt    int    `json:"expires_at"`
-	RefreshToken string `json:"refresh_token"`
-	User         struct {
-		ID           string `json:"id"`
-		Email        string `json:"email"`
-		UserMetadata struct {
-			AvatarURL string `json:"avatar_url"`
-			FullName  string `json:"full_name"`
-		} `json:"user_metadata"`
-	} `json:"user"`
 }
