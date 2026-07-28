@@ -8,13 +8,16 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/l122/expense-tracker/internal/database"
+	"github.com/l122/expense-tracker/pkgs/appRole"
 	"github.com/l122/expense-tracker/pkgs/dbhttp"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/refreshToken"
 	"github.com/l122/expense-tracker/pkgs/token"
+	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
-func authMiddleware(next http.Handler) http.Handler {
+func authMiddleware(next http.Handler, db database.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := token.FromRequest(r)
 		if err != nil {
@@ -30,6 +33,7 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		ctx := token.NewContext(r.Context(), accessToken)
 		if true {
 			// if exp.Compare(time.Now()) < 1 {
 			rt, err := refreshToken.FromRequest(r)
@@ -55,103 +59,60 @@ func authMiddleware(next http.Handler) http.Handler {
 			}
 			defer response.Body.Close()
 
-			// TODO: remove after debug
-			body, _ := io.ReadAll(response.Body)
-			fmt.Println("STATUS:", response.Status)
-			fmt.Println("BODY:", string(body))
-
 			// Todo: FIX THIS ERROR
 			var tokenResp = &RefreshTokenResponse{}
 			if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
+				// TODO: log
+				body, _ := io.ReadAll(response.Body)
+				fmt.Println("STATUS:", response.Status)
+				fmt.Println("BODY:", string(body))
+
 				redirect.ToLoginWithError(w, r, "failed to decode userinfo")
 				return
 			}
 
-			exp, err := token.GetExpirationUnverified(accessToken)
-			if err != nil {
-				redirect.ToLoginWithError(w, r, "Invalid token")
-				return
-			}
-			token.ToRequest(w, r, tokenResp.AccessToken, exp)
+			exp := time.Unix(int64(tokenResp.ExpiresAt), 0)
+			accessToken = tokenResp.AccessToken
+			token.ToRequest(w, r, accessToken, exp)
 			refreshToken.ToRequest(w, r, tokenResp.RefreshToken)
 
+			ctx = token.NewContext(r.Context(), accessToken)
+			user, err := db.GetUserByAuthId(ctx, tokenResp.User.ID)
+			if err != nil {
+				redirect.ToLoginWithError(w, r, "user not found")
+				return
+			}
+
+			if !user.Enabled {
+				redirect.ToLoginWithError(w, r, "user not enabled")
+				return
+			}
+
+			appRole.ToRequest(w, r, user.AppRole, exp)
+			userid.ToRequest(w, r, user.Id, exp)
+
 			// Patch Avatar
-			// _, err = h.db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)
-			// if err != nil {
-			// 	// TODO:log
-			// 	fmt.Printf("error updating avatar url: %s", err)
-			// }
-
-			refreshToken.ToRequest(w, r, rt)
-
-			// exp, err := token.GetExpirationUnverified(newAccessToken)
-			// if err != nil {
-			// 	redirect.ToLoginWithError(w, r, err.Error())
-			// 	return
-			// }
-			// token.ToRequest(w, r, newAccessToken, exp)
+			_, err = db.UpdateAvatar(ctx, user.Id, tokenResp.User.UserMetadata.AvatarURL)
+			if err != nil {
+				// TODO:log
+				fmt.Printf("error updating avatar url: %s", err)
+			}
 		}
 
-		ctx := token.NewContext(r.Context(), accessToken)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 type RefreshTokenResponse struct {
 	AccessToken  string `json:"access_token"`
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int    `json:"expires_in"`
 	ExpiresAt    int    `json:"expires_at"`
 	RefreshToken string `json:"refresh_token"`
 	User         struct {
-		ID               string    `json:"id"`
-		Aud              string    `json:"aud"`
-		Role             string    `json:"role"`
-		Email            string    `json:"email"`
-		EmailConfirmedAt time.Time `json:"email_confirmed_at"`
-		Phone            string    `json:"phone"`
-		ConfirmedAt      time.Time `json:"confirmed_at"`
-		LastSignInAt     time.Time `json:"last_sign_in_at"`
-		AppMetadata      struct {
-			Provider  string   `json:"provider"`
-			Providers []string `json:"providers"`
-		} `json:"app_metadata"`
+		ID           string `json:"id"`
+		Email        string `json:"email"`
 		UserMetadata struct {
-			AvatarURL     string `json:"avatar_url"`
-			Email         string `json:"email"`
-			EmailVerified bool   `json:"email_verified"`
-			FullName      string `json:"full_name"`
-			Iss           string `json:"iss"`
-			Name          string `json:"name"`
-			PhoneVerified bool   `json:"phone_verified"`
-			Picture       string `json:"picture"`
-			ProviderID    string `json:"provider_id"`
-			Sub           string `json:"sub"`
+			AvatarURL string `json:"avatar_url"`
+			FullName  string `json:"full_name"`
 		} `json:"user_metadata"`
-		Identities []struct {
-			IdentityID   string `json:"identity_id"`
-			ID           string `json:"id"`
-			UserID       string `json:"user_id"`
-			IdentityData struct {
-				AvatarURL     string `json:"avatar_url"`
-				Email         string `json:"email"`
-				EmailVerified bool   `json:"email_verified"`
-				FullName      string `json:"full_name"`
-				Iss           string `json:"iss"`
-				Name          string `json:"name"`
-				PhoneVerified bool   `json:"phone_verified"`
-				Picture       string `json:"picture"`
-				ProviderID    string `json:"provider_id"`
-				Sub           string `json:"sub"`
-			} `json:"identity_data"`
-			Provider     string    `json:"provider"`
-			LastSignInAt time.Time `json:"last_sign_in_at"`
-			CreatedAt    time.Time `json:"created_at"`
-			UpdatedAt    time.Time `json:"updated_at"`
-			Email        string    `json:"email"`
-		} `json:"identities"`
-		CreatedAt   time.Time `json:"created_at"`
-		UpdatedAt   time.Time `json:"updated_at"`
-		IsAnonymous bool      `json:"is_anonymous"`
 	} `json:"user"`
 }

@@ -59,7 +59,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 
 	return chainMiddlewares(
 		handler,
-		authMiddleware,
+		func(next http.Handler) http.Handler { return authMiddleware(next, s.db) },
 		rateLimitMiddleware,
 		userRoleCheckMiddleware,
 		userIdCheckMiddleware,
@@ -82,7 +82,7 @@ func (s *Server) registerAdminRoutes() http.Handler {
 
 	return chainMiddlewares(
 		handler,
-		authMiddleware,
+		func(next http.Handler) http.Handler { return authMiddleware(next, s.db) },
 		rateLimitMiddleware,
 		adminRoleCheckMiddleware,
 		userIdCheckMiddleware,
