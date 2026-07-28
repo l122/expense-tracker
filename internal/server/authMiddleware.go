@@ -1,16 +1,13 @@
 package server
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 
+	"github.com/l122/expense-tracker/internal/auth"
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/pkgs/appRole"
-	"github.com/l122/expense-tracker/pkgs/dbhttp"
 	"github.com/l122/expense-tracker/pkgs/redirect"
 	"github.com/l122/expense-tracker/pkgs/refreshToken"
 	"github.com/l122/expense-tracker/pkgs/token"
@@ -34,7 +31,6 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 		}
 
 		ctx := token.NewContext(r.Context(), accessToken)
-		// if true {
 		if exp.Compare(time.Now()) < 1 {
 			rt, err := refreshToken.FromRequest(r)
 			if err != nil {
@@ -42,37 +38,11 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 				return
 			}
 
-			// Exchange token
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-
-			ctx = refreshToken.NewContext(ctx, rt)
-			response, err := dbhttp.ExchangeRefreshToken(ctx)
-			if err != nil || response.StatusCode > 299 || response.StatusCode < 200 {
+			tokenResp, err := auth.ExchangeRefreshToken(rt)
+			if err != nil {
 				// TODO: log
-				body, _ := io.ReadAll(response.Body)
-				fmt.Println("STATUS:", response.Status)
-				fmt.Println("BODY:", string(body))
-
-				redirect.ToLoginWithError(w, r, "failed to exchange token")
+				redirect.ToLoginWithError(w, r, err.Error())
 				return
-			}
-			defer response.Body.Close()
-
-			// Todo: FIX THIS ERROR
-			var tokenResp = &token.TokenResponse{}
-			if err := json.NewDecoder(response.Body).Decode(tokenResp); err != nil {
-				// TODO: log
-				body, _ := io.ReadAll(response.Body)
-				fmt.Println("STATUS:", response.Status)
-				fmt.Println("BODY:", string(body))
-
-				redirect.ToLoginWithError(w, r, "failed to decode userinfo")
-				return
-			}
-
-			if !tokenResp.User.UserMetadata.EmailVerified {
-				redirect.ToLoginWithError(w, r, "email not verified")
 			}
 
 			exp := time.Unix(int64(tokenResp.ExpiresAt), 0)

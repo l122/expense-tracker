@@ -9,8 +9,18 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/l122/expense-tracker/pkgs/authVerifier"
+	"github.com/l122/expense-tracker/pkgs/exchangeCode"
 	"github.com/l122/expense-tracker/pkgs/refreshToken"
 	"github.com/l122/expense-tracker/pkgs/token"
+)
+
+const (
+	authCode        = "auth_code"
+	codeVerifier    = "code_verifier"
+	contentType     = "Content-Type"
+	applicationJson = "application/json"
+	apiKey          = "apikey"
 )
 
 func Send(ctx context.Context, req *http.Request) (*http.Response, error) {
@@ -63,4 +73,59 @@ func ExchangeRefreshToken(ctx context.Context) (*http.Response, error) {
 	response, err := client.Do(request)
 
 	return response, nil
+}
+
+func ExchangeCodeForToken(ctx context.Context) (*http.Response, error) {
+	code, ok := exchangeCode.FromContext(ctx)
+	if !ok {
+		return nil, errors.New("Failed to extract code from context")
+	}
+
+	verifier, ok := authVerifier.FromContext(ctx)
+	if !ok {
+		return nil, errors.New("Failed to extract verifier from context")
+	}
+
+	client := &http.Client{}
+	request, err := createTokenRequest(code, verifier)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := client.Do(request)
+	if err != nil || response.StatusCode > 299 || response.StatusCode < 200 {
+		// TODO: log
+		// body, _ := io.ReadAll(response.Body)
+		// fmt.Println("STATUS:", response.Status)
+		// fmt.Println("BODY:", string(body))
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func createTokenRequest(code, verifier string) (*http.Request, error) {
+	payload := map[string]string{
+		authCode:     code,
+		codeVerifier: verifier,
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	request, err := http.NewRequest(
+		http.MethodPost,
+		os.Getenv("SUPABASE_URL")+os.Getenv("SUPABASE_TOKEN_ENDPOINT"),
+		bytes.NewReader(data),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set(contentType, applicationJson)
+	request.Header.Set(apiKey, os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
+
+	return request, nil
 }
