@@ -77,11 +77,7 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exp, err := token.GetExpirationUnverified(tokenResp.AccessToken)
-	if err != nil {
-		redirect.ToLoginWithError(w, r, err.Error())
-		return
-	}
+	exp := time.Unix(int64(tokenResp.ExpiresAt), 0)
 	appRole.ToRequest(w, r, user.AppRole, exp)
 	userid.ToRequest(w, r, user.Id, exp)
 	token.ToRequest(w, r, tokenResp.AccessToken, exp)
