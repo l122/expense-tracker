@@ -27,7 +27,7 @@ type Service interface {
 	EnableUser(ctx context.Context, userId int) (domain.User, error)
 	DisableUser(ctx context.Context, userId int) (domain.User, error)
 	UpdateAvatar(ctx context.Context, userId int, avatarUrl string) (domain.User, error)
-	// DeleteUsers(id int) error
+	DeleteUsers(ctx context.Context, userId int) error
 
 	GetAuthClient() gotrue.Client
 }

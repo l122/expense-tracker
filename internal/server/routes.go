@@ -9,6 +9,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user/deleteSelf"
 	"github.com/l122/expense-tracker/internal/web/features/login"
 	"github.com/l122/expense-tracker/internal/web/features/logout"
 	"github.com/l122/expense-tracker/internal/web/features/navbar"
@@ -56,6 +57,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
+	router.Handle("DELETE /user/{id}", deleteSelf.New(s.db))
 
 	return chainMiddlewares(
 		handler,

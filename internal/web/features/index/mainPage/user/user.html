@@ -8,7 +8,7 @@
         <p class="card-text">{{.Email}}</p>
     </div>
     <div class="card-body">
-        <a href="#" class="card-link">Delete</a>
+        <a href="/user/{{.Id}}" class="card-link" hx-delete="/user/{{.Id}}">Delete</a>
         <a href="/auth/logout" class="card-link">Logout</a>
     </div>
 </div>
