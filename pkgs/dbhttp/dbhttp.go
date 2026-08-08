@@ -41,6 +41,20 @@ func Send(ctx context.Context, req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
+func SendWithRoleKey(ctx context.Context, req *http.Request) (*http.Response, error) {
+	req.Header.Set("apikey", os.Getenv("SUPABASE_API_KEY"))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("SUPABASE_API_KEY"))
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("HTTP request failed: %v\n", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func ExchangeRefreshToken(ctx context.Context) (*http.Response, error) {
 	rt, ok := refreshToken.FromContext(ctx)
 	if !ok {

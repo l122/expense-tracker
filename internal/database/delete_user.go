@@ -10,7 +10,7 @@ import (
 	"github.com/l122/expense-tracker/pkgs/dbhttp"
 )
 
-func (s *service) DeleteUsers(ctx context.Context, userId int) error {
+func (s *service) DeleteUser(ctx context.Context, userId int) error {
 	user, err := s.GetUserById(ctx, userId)
 	if err != nil {
 		// TODO: log
@@ -22,7 +22,7 @@ func (s *service) DeleteUsers(ctx context.Context, userId int) error {
 		return err
 	}
 
-	resp, err := dbhttp.Send(ctx, req)
+	resp, err := dbhttp.SendWithRoleKey(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -47,8 +47,6 @@ func createDeleteRequest(auth_id string) (*http.Request, error) {
 		fmt.Printf("Failed to delete user: %v\n", err)
 		return nil, err
 	}
-
-	req.Header.Set("Content-Type", "application/json")
 
 	return req, nil
 }

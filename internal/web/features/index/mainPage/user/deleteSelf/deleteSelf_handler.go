@@ -23,17 +23,12 @@ func New(repo database.Service) *Handler {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Check if the request comes from the same user
-	userIdFromCookie := userid.FromRequestOrPanic(r)
-	userIdFromUrl, err := userid.FromUrlPath(r)
+	userId, err := userid.FromUrlPath(r)
 	if err != nil {
 		// TODO: log
 		fmt.Printf("Error: %v\n", err)
-		return
-	}
-	if userIdFromCookie != userIdFromUrl {
-		// TODO: log and redirect to an error page
-		// return 403
+		http.Error(w, "Invalid or missing user id in URL path", http.StatusBadRequest)
+
 		return
 	}
 
@@ -41,19 +36,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	accessToken := token.FromRequestOrPanic(r)
 	ctx = token.NewContext(ctx, accessToken)
-	err = h.repo.DeleteUsers(ctx, userIdFromUrl)
-	if userIdFromCookie != userIdFromUrl {
-		// TODO: log and redirect to an error page
-		// return 400
+	err = h.repo.DeleteUser(ctx, userId)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("Error: %v\n", err)
+		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
 		return
 	}
 
 	cookies.ClearAll(w, r)
 
-	http.Redirect(
-		w,
-		r,
-		"/auth/login",
-		http.StatusTemporaryRedirect,
-	)
+	// Note:always use this expression for AJAX requests when you need to redirect
+	// Otherwise the web page will be embedded
+	w.Header().Set("HX-Redirect", "/auth/login")
+	w.WriteHeader(http.StatusOK)
 }
