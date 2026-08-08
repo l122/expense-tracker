@@ -1,12 +1,14 @@
 package database
 
 import (
+	"context"
 	"os"
 
 	"log"
 
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/l122/expense-tracker/internal/domain"
 	"github.com/supabase-community/gotrue-go"
 	"github.com/supabase-community/supabase-go"
 )
@@ -18,15 +20,14 @@ type Service interface {
 	// Health() map[string]string
 	Health() string
 
-	// SeedDb() error
+	GetUsers(ctx context.Context) ([]domain.User, error)
+	GetUserByAuthId(ctx context.Context, userId string) (domain.User, error)
+	GetUserById(ctx context.Context, userId int) (domain.User, error)
 
-	// // Users
-	// GetUserByEmail(email string) (domain.User, error)
-	// CreateUser(name, email, username, role string) (domain.User, error)
-
-	// // TODO: refactor
-	// GetUsers() ([]domain.User, error)
-	// DeleteUsers(id int) error
+	EnableUser(ctx context.Context, userId int) (domain.User, error)
+	DisableUser(ctx context.Context, userId int) (domain.User, error)
+	UpdateAvatar(ctx context.Context, userId int, avatarUrl string) (domain.User, error)
+	DeleteUser(ctx context.Context, userId int) error
 
 	GetAuthClient() gotrue.Client
 }

@@ -1,24 +1,57 @@
 package database
 
-// import (
-// 	"context"
-// 	"fmt"
-// 	"time"
-// )
+import (
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 
-// func (s *service) DeleteUsers(id int) error {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
+	"github.com/l122/expense-tracker/pkgs/dbhttp"
+)
 
-// 	query := "DELETE FROM Users WHERE id = ?"
-// 	result, err := s.db.Exec(ctx, query, id)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to execute delete: %w", err)
-// 	}
+func (s *service) DeleteUser(ctx context.Context, userId int) error {
+	user, err := s.GetUserById(ctx, userId)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("User not found: %v\n", err)
+		return err
+	}
 
-// 	rowsAffected := result.RowsAffected()
-// 	if rowsAffected == 0 {
-// 		return fmt.Errorf("No user found with ID %d\n", id)
-// 	}
-// 	return nil
-// }
+	req, err := createDeleteRequest(user.AuthId)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("Failed to create delete request: %v\n", err)
+		return err
+	}
+
+	resp, err := dbhttp.SendWithRoleKey(ctx, req)
+	if err != nil {
+		// TODO: log
+		fmt.Printf("Failed to delete user: %v\n", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		fmt.Printf("Error response (Status %d): %s\n", resp.StatusCode, string(bodyBytes))
+		return err
+	}
+
+	return nil
+}
+
+func createDeleteRequest(auth_id string) (*http.Request, error) {
+
+	url := os.Getenv("SUPABASE_URL")
+	endpoint := fmt.Sprintf("%s/auth/v1/admin/users/%s", url, auth_id)
+
+	req, err := http.NewRequest("DELETE", endpoint, nil)
+	if err != nil {
+		fmt.Printf("Failed to delete user: %v\n", err)
+		return nil, err
+	}
+
+	return req, nil
+}

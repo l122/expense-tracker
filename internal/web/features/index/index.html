@@ -4,9 +4,11 @@
 {{template "head" "Expense Tracker"}}
 
 <body>
-    {{template "left_drawer"}}
+    <div id="left_drawer" hx-get="/navbar" hx-target="this" hx-trigger="load">
+    </div>
 
-    {{template "dashboard"}}
+    <div id="main_page">
+    </div>
 </body>
 
 </html>
