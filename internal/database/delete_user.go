@@ -15,15 +15,20 @@ func (s *service) DeleteUser(ctx context.Context, userId int) error {
 	if err != nil {
 		// TODO: log
 		fmt.Printf("User not found: %v\n", err)
+		return err
 	}
 
 	req, err := createDeleteRequest(user.AuthId)
 	if err != nil {
+		// TODO: log
+		fmt.Printf("Failed to create delete request: %v\n", err)
 		return err
 	}
 
 	resp, err := dbhttp.SendWithRoleKey(ctx, req)
 	if err != nil {
+		// TODO: log
+		fmt.Printf("Failed to delete user: %v\n", err)
 		return err
 	}
 	defer resp.Body.Close()

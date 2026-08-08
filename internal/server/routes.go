@@ -114,6 +114,7 @@ func (s *Server) registerAdminRoutes() http.Handler {
 
 	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
 	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("DELETE /admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewAdminView(templates)))
 
 	return chainMiddlewares(
 		handler,
