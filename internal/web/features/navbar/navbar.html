@@ -1,8 +1,8 @@
 {{define "navbar"}}
 <!-- Bootstrap Offcanvas Trigger -->
-<button class="menu-toggle border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
-    aria-controls="offcanvasMenu">
-    <svg xmlns="http://www.w3.org/2000/svg" width="2.5em" height="2.5em" fill="currentColor" class="bi bi-list"
+<button class="btn btn-light border-0 position-fixed top-0 start-0 m-2 z-3 rounded-circle p-2 shadow-sm" type="button"
+    data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1.75em" height="1.75em" fill="currentColor" class="bi bi-list"
         viewBox="0 0 16 16">
         <path fill-rule="evenodd"
             d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
@@ -10,31 +10,33 @@
 </button>
 
 <!-- Bootstrap Offcanvas Menu -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+<div class="offcanvas offcanvas-start mw-100" style="width: 320px;" tabindex="-1" id="offcanvasMenu"
+    aria-labelledby="offcanvasMenuLabel">
     <div class="offcanvas-header border-bottom">
         <a class="navbar-brand d-flex align-items-center" href="/user/{{.Id}}" hx-get="/user/{{.Id}}"
             hx-target="#main_page" data-bs-dismiss="offcanvas">
-            <img src="{{.AvatarUrl}}" alt="Avatar" width="30" height="30" class="rounded-circle object-fit-cover me-2">
-            <span class="fw-bold fs-7">{{.FullName}}</span>
+            <img src="{{.AvatarUrl}}" alt="Avatar" width="30" height="30" class="rounded-circle object-fit-cover me-2"
+                referrerpolicy="no-referrer">
+            <span class="fw-bold fs-6 text-truncate">{{.FullName}}</span>
         </a>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
 
-        <ul class="nav flex-column">
+        <ul class="nav nav-pills flex-column gap-1">
 
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/dashboard" hx-get="/dashboard"
+                <a class="nav-link active py-3 fs-6" aria-current="page" href="/dashboard" hx-get="/dashboard"
                     hx-target="#main_page" hx-trigger="load, click" data-bs-dismiss="offcanvas">Dashboard</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" hx-get="/about" href="/about" hx-target="#main_page"
+                <a class="nav-link py-3 fs-6" hx-get="/about" href="/about" hx-target="#main_page"
                     data-bs-dismiss="offcanvas">About</a>
             </li>
             {{if eq .AppRole "admin"}}
             <li class="nav-item">
-                <a class="nav-link" hx-get="/admin" href="/admin" hx-target="#main_page"
+                <a class="nav-link py-3 fs-6" hx-get="/admin" href="/admin" hx-target="#main_page"
                     data-bs-dismiss="offcanvas">Admin</a>
             </li>
             {{end}}
