@@ -19,17 +19,15 @@ profile.cov
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+db/
 
 # Go workspace file
 go.work
 tmp/
+.env.local
 
 # IDE specific files
-.vscode
 .idea
-
-# .env file
-.env
 
 # Project build
 main
@@ -40,5 +38,3 @@ main
 
 # Editor/IDE
 .idea/
-.vscode/
-

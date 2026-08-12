@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - "**.go"
+      - "**.gohtml"
       - "**.mod"
       - "**.sum"
       - "**.templ"
@@ -33,10 +34,10 @@ concurrency: production
 
 jobs:
   Build-and-test:
-    # if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.taggerFinal.outputs.new_tag }}
+      tag: ${{ steps.taggerFinal.outputs.tag }}
     permissions:
       contents: write
 
@@ -81,12 +82,6 @@ jobs:
       - name: Display Go version
         run: go version
 
-      - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@v0.3.1001
-
-      - name: Generate templ files
-        run: templ generate
-
       ####### DEBUG
       - name: Show repo structure
         run: |
@@ -103,7 +98,7 @@ jobs:
           COMMIT_SHA="${{ github.sha }}"
           BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M:%S')
           go build \
-            -ldflags="-X 'main.Version=$VERSION' \
+            -ldflags="-X 'main.AppVersion=$VERSION' \
                       -X 'main.CommitSHA=$COMMIT_SHA' \
                       -X 'main.BuildDate=$BUILD_DATE'" \
             -o main ./cmd/api
@@ -176,8 +171,13 @@ jobs:
         run: |-
           IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
           TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-          docker build -t $IMAGE:$TAG .
+          docker build \
+            --build-arg APP_VERSION="$TAG" \
+            --build-arg COMMIT_SHA="${{ github.sha }}" \
+            --build-arg BUILD_DATE="$BUILD_DATE" \
+            -t $IMAGE:$TAG .
 
           docker push $IMAGE:$TAG
 
@@ -190,16 +190,19 @@ jobs:
       # DEPLOY
       ################################################
       - name: Deploy to Cloud Run
+        id: deploy
         run: |
           IMAGE="europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}"
           TAG="${{ needs.Build-and-test.outputs.tag || github.sha }}"
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
           gcloud run deploy ${{ env.SERVICE }} \
             --image $IMAGE:$TAG \
             --project ${{ env.PROJECT_ID }} \
             --region ${{ env.REGION }} \
             --platform managed \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars=APP_VERSION="$TAG",COMMIT_SHA="${{ github.sha }}",BUILD_DATE="$BUILD_DATE"
 
       - name: Show output
         run: |

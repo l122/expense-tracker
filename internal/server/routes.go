@@ -1,72 +1,127 @@
 package server
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 
-	"expense-tracker/cmd/web"
-
-	"github.com/a-h/templ"
+	"github.com/l122/expense-tracker/internal/web"
+	"github.com/l122/expense-tracker/internal/web/features/index"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user/deleteSelf"
+	"github.com/l122/expense-tracker/internal/web/features/login"
+	"github.com/l122/expense-tracker/internal/web/features/logout"
+	"github.com/l122/expense-tracker/internal/web/features/navbar"
 )
 
+type Handler struct {
+	http.Handler
+}
+
 func (s *Server) RegisterRoutes() http.Handler {
-	mux := http.NewServeMux()
+	router := http.NewServeMux()
 
-	// Register routes
-	mux.HandleFunc("/", s.HelloWorldHandler)
+	router.Handle("/", s.registerUserRoutes())
+	router.Handle("/auth/", s.registerAuthRoutes())
+	router.Handle("/admin/", s.registerAdminRoutes())
+	router.Handle("/user/", s.registerSelfRoutes())
 
-	mux.HandleFunc("/health", s.healthHandler)
-
-	fileServer := http.FileServer(http.FS(web.Files))
-	mux.Handle("/assets/", fileServer)
-	mux.Handle("/web", templ.Handler(web.HelloForm()))
-	mux.HandleFunc("/hello", web.HelloWebHandler)
-
-	// Wrap the mux with CORS middleware
-	return s.corsMiddleware(mux)
+	return http.NewCrossOriginProtection().Handler(router)
 }
 
-func (s *Server) corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins if needed
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
+func (s *Server) registerAuthRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
+	}
 
-		// Handle preflight OPTIONS requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
+	templates := web.ParseTemplates()
 
-		// Proceed with the next handler
-		next.ServeHTTP(w, r)
-	})
+	router.Handle("GET /auth/logout", logout.New())
+	router.Handle("GET /auth/login", login.NewLoginHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google", login.NewAuthHandler(login.NewLoginView(templates), s.db))
+	router.Handle("GET /auth/google/callback", login.NewCallbackHandler(login.NewLoginView(templates), s.db))
+
+	return chainMiddlewares(handler, rateLimitMiddleware, recoveryMiddleware)
 }
 
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]string{"message": "Hello World"}
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
-		return
+func (s *Server) registerUserRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
 	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(jsonResp); err != nil {
-		log.Printf("Failed to write response: %v", err)
-	}
+
+	templates := web.ParseTemplates()
+
+	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates)))
+	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
+	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
+	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
+
+	return chainMiddlewares(
+		handler,
+		func(next http.Handler) http.Handler { return authMiddleware(next, s.db) },
+		rateLimitMiddleware,
+		userRoleCheckMiddleware,
+		userIdCheckMiddleware,
+		recoveryMiddleware,
+	)
 }
 
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := json.Marshal(s.db.Health())
-	if err != nil {
-		http.Error(w, "Failed to marshal health check response", http.StatusInternalServerError)
-		return
+func (s *Server) registerSelfRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
 	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(resp); err != nil {
-		log.Printf("Failed to write response: %v", err)
+
+	templates := web.ParseTemplates()
+
+	deleteHandler := chainMiddlewares(
+		deleteSelf.New(s.db),    // 7
+		userSelfCheckMiddleware, // 6
+		recoveryMiddleware,      // 5
+	)
+
+	router.Handle("DELETE /user/{id}", deleteHandler)
+
+	getHandler := chainMiddlewares(
+		user.NewHandler(s.db, user.NewView(templates)), // 7
+		userSelfCheckMiddleware,                        // 6
+		recoveryMiddleware,                             // 5
+	)
+
+	router.Handle("GET /user/{id}", getHandler)
+
+	return chainMiddlewares(
+		handler,
+		func(next http.Handler) http.Handler { return authMiddleware(next, s.db) }, // 1
+		rateLimitMiddleware,     // 2
+		userRoleCheckMiddleware, // 3
+		userIdCheckMiddleware,   // 4
+	)
+}
+
+func (s *Server) registerAdminRoutes() http.Handler {
+	router := http.NewServeMux()
+	handler := &Handler{
+		Handler: router,
 	}
+
+	templates := web.ParseTemplates()
+
+	router.Handle("GET /admin/", admin.NewAdminHandler(s.db, admin.NewAdminView(templates)))
+
+	router.Handle("PATCH /admin/{id}/enable", admin.NewEnableUserHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("PATCH /admin/{id}/disable", admin.NewDisableUserHandler(s.db, admin.NewAdminView(templates)))
+	router.Handle("DELETE /admin/{id}", admin.NewDeleteUserHandler(s.db, admin.NewAdminView(templates)))
+
+	return chainMiddlewares(
+		handler,
+		func(next http.Handler) http.Handler { return authMiddleware(next, s.db) },
+		rateLimitMiddleware,
+		adminRoleCheckMiddleware,
+		userIdCheckMiddleware,
+		recoveryMiddleware,
+	)
 }

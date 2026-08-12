@@ -2,23 +2,9 @@
 
 # Build the application
 all: build test
-templ-install:
-	@powershell -ExecutionPolicy Bypass -Command "if (Get-Command templ -ErrorAction SilentlyContinue) { \
-		; \
-	} else { \
-		Write-Output 'Installing templ...'; \
-		go install github.com/a-h/templ/cmd/templ@v0.3.1001; \
-		if (-not (Get-Command templ -ErrorAction SilentlyContinue)) { \
-			Write-Output 'templ installation failed. Exiting...'; \
-			exit 1; \
-		} else { \
-			Write-Output 'templ installed successfully.'; \
-		} \
-	}"
 
-build: templ-install
+build: 
 	@echo "Building..."
-	@templ generate
 	
 	@go build -o main.exe cmd/api/main.go
 
@@ -48,4 +34,4 @@ watch:
 		Write-Output 'Watching...'; \
 	}"
 
-.PHONY: all build run test clean watch templ-install
+.PHONY: all build run test clean watch

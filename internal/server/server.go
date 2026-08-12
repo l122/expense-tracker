@@ -3,36 +3,33 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
-	"time"
 
-	_ "github.com/joho/godotenv/autoload"
-
-	"expense-tracker/internal/database"
+	"github.com/l122/expense-tracker/internal/config"
+	"github.com/l122/expense-tracker/internal/database"
 )
 
 type Server struct {
-	port int
+	port   int
+	config *config.Config
 
 	db database.Service
 }
 
-func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
-
-		db: database.New(),
+func NewServer(cfg *config.Config) *http.Server {
+	port := config.GetConfigValue("PORT")
+	if port == 0 {
+		port = 8080
 	}
 
-	// Declare Server config
+	NewServer := &Server{
+		port:   port,
+		config: cfg,
+		db:     database.New(),
+	}
+
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		Addr:    fmt.Sprintf(":%d", NewServer.port),
+		Handler: NewServer.RegisterRoutes(),
 	}
 
 	return server

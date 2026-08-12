@@ -1,0 +1,18 @@
+{{define "user"}}
+
+<div class="container-fluid px-3 px-md-4 pt-5 pb-4 py-md-5 d-flex justify-content-center">
+    <div class="card mw-100" style="width: 18rem;">
+        <img src="{{.AvatarUrl}}" class="card-img-top" alt="Avatar" referrerpolicy="no-referrer">
+        <div class="card-body">
+            <h5 class="card-title text-break">{{.FullName}}</h5>
+            <p class="card-text text-break">{{.Email}}</p>
+        </div>
+        <div class="card-body">
+            <div id="delete-error"></div>
+            <a href="/user/{{.Id}}" class="card-link" hx-delete="/user/{{.Id}}" hx-target="#delete-error"
+                hx-swap="innerHTML" hx-confirm="Are you sure you want to delete your account?">Delete</a>
+            <a href="/auth/logout" class="card-link">Logout</a>
+        </div>
+    </div>
+</div>
+{{end}}
