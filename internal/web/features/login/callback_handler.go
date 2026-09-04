@@ -76,6 +76,8 @@ func (h *CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !user.Enabled {
+		// TODO: Create a page with information that the user will be enabled by admin
+		// and display the support email
 		redirect.ToLoginWithError(w, r, "user not enabled")
 		return
 	}
