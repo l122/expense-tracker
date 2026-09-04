@@ -18,13 +18,11 @@ func authMiddleware(next http.Handler, db database.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := token.FromRequest(r)
 		if err != nil {
-			// TODO:log
-			redirect.ToLoginWithError(w, r, "No access token in request")
+			redirect.ToLogin(w, r)
 			return
 		}
 
 		exp, err := token.GetExpirationUnverified(accessToken)
-		// _, err = token.GetExpirationUnverified(accessToken)
 		if err != nil {
 			redirect.ToLoginWithError(w, r, "Invalid token")
 			return
