@@ -8,6 +8,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/about"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/admin"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/expenseview"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user/deleteSelf"
 	"github.com/l122/expense-tracker/internal/web/features/login"
@@ -58,6 +59,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates), s.db))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
+	router.Handle("GET /expense", expenseview.NewHandler(expenseview.New(templates), s.db))
 
 	return chainMiddlewares(
 		handler,
