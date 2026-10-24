@@ -3,6 +3,8 @@ package dashboard
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/l122/expense-tracker/internal/domain"
 )
 
 type View struct {
@@ -15,8 +17,8 @@ func New(templ *template.Template) *View {
 	}
 }
 
-func (i *View) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "dashboard", nil); err != nil {
+func (i *View) Index(w http.ResponseWriter, categories []domain.Category) {
+	if err := i.templ.ExecuteTemplate(w, "dashboard", categories); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

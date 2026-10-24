@@ -29,7 +29,7 @@ type Service interface {
 	UpdateAvatar(ctx context.Context, userId int, avatarUrl string) (domain.User, error)
 	DeleteUser(ctx context.Context, userId int) error
 
-	GetCategoriesByUser(ctx context.Context, userId int) (domain.Category, error)
+	GetCategoriesByUser(ctx context.Context, userId int) ([]domain.Category, error)
 
 	GetAuthClient() gotrue.Client
 }

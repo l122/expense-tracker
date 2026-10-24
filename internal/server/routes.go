@@ -56,7 +56,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 
 	router.Handle("/", index.NewIndexHandler(index.NewIndexView(templates)))
 	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
-	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates)))
+	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates), s.db))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
 
 	return chainMiddlewares(

@@ -2,13 +2,13 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 
 	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/l122/expense-tracker/pkgs/categories"
 	"github.com/l122/expense-tracker/pkgs/dbhttp"
 )
 
@@ -16,40 +16,32 @@ const (
 	categoriesTable = "categories"
 )
 
-func (s *service) GetCategoriesByUser(ctx context.Context, userId int) (domain.Category, error) {
-	var emptyCategory domain.Category
+func (s *service) GetCategoriesByUser(ctx context.Context, userId int) ([]domain.Category, error) {
+	var result []domain.Category
 
 	req, err := createGetCategoriesByUserRequest(userId)
 	if err != nil {
-		return emptyCategory, err
+		return result, err
 	}
 
 	resp, err := dbhttp.Send(ctx, req)
 	if err != nil {
-		return emptyCategory, err
+		return result, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		fmt.Printf("Error response (Status %d): %s\n", resp.StatusCode, string(bodyBytes))
-		return emptyCategory, err
+		return result, err
 	}
 
-	bodyBytes, err := io.ReadAll(resp.Body)
-	// fmt.Println("BODY:", string(bodyBytes))
+	result, err = categories.FromHttpResponse(resp)
 	if err != nil {
-		fmt.Printf("Failed to read body: %v\n", err)
-		return emptyCategory, err
+		return result, err
 	}
 
-	var categories []domain.Category
-	if err := json.Unmarshal(bodyBytes, &categories); err != nil {
-		fmt.Printf("Failed to parse JSON: %v\n", err)
-		return emptyCategory, err
-	}
-
-	return categories[0], nil
+	return result, nil
 }
 
 func createGetCategoriesByUserRequest(userId int) (*http.Request, error) {
