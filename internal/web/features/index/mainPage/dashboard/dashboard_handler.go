@@ -31,7 +31,7 @@ func (t *DashboardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	accessToken := token.FromRequestOrPanic(r)
 	ctx = token.NewContext(ctx, accessToken)
 
-	userId, err := userid.FromUrlPath(r)
+	userId, err := userid.FromRequest(r)
 	if err != nil {
 		// TODO: log
 		fmt.Printf("Error: %v\n", err)
@@ -40,7 +40,7 @@ func (t *DashboardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	categories, err := t.repo.GetCategoriesByUser(ctx, userId)
 	if err != nil {
 		// TODO: log
-		fmt.Printf("Error fetching categories", err)
+		fmt.Printf("Error fetching categories: %v\n", err)
 	}
 
 	t.view.Index(w, categories)

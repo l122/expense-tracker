@@ -33,7 +33,7 @@ func (s *service) GetCategoriesByUser(ctx context.Context, userId int) ([]domain
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		fmt.Printf("Error response (Status %d): %s\n", resp.StatusCode, string(bodyBytes))
-		return result, err
+		return result, fmt.Errorf("Error response (Status %d): %s\n", resp.StatusCode, string(bodyBytes))
 	}
 
 	result, err = categories.FromHttpResponse(resp)
