@@ -14,6 +14,7 @@ import (
 
 const (
 	categoriesTable = "categories"
+	expensesTable   = "expenses"
 )
 
 func (s *service) GetCategoriesByUser(ctx context.Context, userId int) ([]domain.Category, error) {

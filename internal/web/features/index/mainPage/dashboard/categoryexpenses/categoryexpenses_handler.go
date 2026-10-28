@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/l122/expense-tracker/internal/database"
-	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/categoryexpenses/models"
 	"github.com/l122/expense-tracker/pkgs/categories"
 	"github.com/l122/expense-tracker/pkgs/httperrors"
 	"github.com/l122/expense-tracker/pkgs/token"
@@ -59,10 +58,6 @@ func (t *ExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.CategoryExpensesData{
-		Category:    category,
-		TotalAmount: 113,
-	}
-
-	t.view.Index(w, data)
+	expenses, err := t.repo.GetExpensesByCategoryIdAndUser(ctx, categoryId, userId)
+	t.view.Index(w, newCategoryExpensesData(category, expenses))
 }
