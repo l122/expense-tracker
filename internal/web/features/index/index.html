@@ -4,6 +4,8 @@
 {{template "head" "Expense Tracker"}}
 
 <body>
+    {{template "loading-indicator"}}
+
     <div id="left_drawer" hx-get="/navbar" hx-target="this" hx-trigger="load">
     </div>
 

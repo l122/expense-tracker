@@ -14,7 +14,7 @@
     aria-labelledby="offcanvasMenuLabel">
     <div class="offcanvas-header border-bottom">
         <a class="navbar-brand d-flex align-items-center" href="/user/{{.Id}}" hx-get="/user/{{.Id}}"
-            hx-target="#main_page" data-bs-dismiss="offcanvas">
+            hx-target="#main_page" hx-indicator="#loading-indicator" data-bs-dismiss="offcanvas">
             <img src="{{.AvatarUrl}}" alt="Avatar" width="30" height="30" class="rounded-circle object-fit-cover me-2"
                 referrerpolicy="no-referrer">
             <span class="fw-bold fs-6 text-truncate">{{.FullName}}</span>
@@ -27,17 +27,17 @@
 
             <li class="nav-item">
                 <a class="nav-link active py-3 fs-6" aria-current="page" href="/dashboard" hx-get="/dashboard"
-                    hx-target="#main_page" hx-trigger="load, click" data-bs-dismiss="offcanvas">Dashboard</a>
+                    hx-target="#main_page" hx-trigger="load, click" hx-indicator="#loading-indicator" data-bs-dismiss="offcanvas">Dashboard</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link py-3 fs-6" hx-get="/about" href="/about" hx-target="#main_page"
-                    data-bs-dismiss="offcanvas">About</a>
+                    hx-indicator="#loading-indicator" data-bs-dismiss="offcanvas">About</a>
             </li>
             {{if eq .AppRole "admin"}}
             <li class="nav-item">
                 <a class="nav-link py-3 fs-6" hx-get="/admin" href="/admin" hx-target="#main_page"
-                    data-bs-dismiss="offcanvas">Admin</a>
+                    hx-indicator="#loading-indicator" data-bs-dismiss="offcanvas">Admin</a>
             </li>
             {{end}}
         </ul>
