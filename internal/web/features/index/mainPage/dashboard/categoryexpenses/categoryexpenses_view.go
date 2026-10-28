@@ -1,4 +1,4 @@
-package expenseview
+package categoryexpenses
 
 import (
 	"html/template"
@@ -16,7 +16,7 @@ func New(templ *template.Template) *View {
 }
 
 func (i *View) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "expense", nil); err != nil {
+	if err := i.templ.ExecuteTemplate(w, "categoryexpenses", nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

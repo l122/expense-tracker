@@ -1,4 +1,4 @@
-package expenseview
+package categoryexpenses
 
 import (
 	"net/http"
