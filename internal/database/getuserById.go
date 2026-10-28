@@ -33,7 +33,6 @@ func (s *service) GetUserById(ctx context.Context, userId int) (domain.User, err
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
-	fmt.Println("BODY:", string(bodyBytes))
 	if err != nil {
 		fmt.Printf("Failed to read body: %v\n", err)
 		return emptyUser, err
