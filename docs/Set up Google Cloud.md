@@ -2,7 +2,6 @@
 
 Source: https://github.com/google-github-actions/auth?tab=readme-ov-file#preferred-direct-workload-identity-federation
 
-
 Note: The terminal commands below are applied to Command Prompt
 
 1. Authorize to gcloud
@@ -10,7 +9,6 @@ Note: The terminal commands below are applied to Command Prompt
 ```
 gcloud auth login
 ```
-
 
 1. Set variables for future use
 
@@ -80,7 +78,6 @@ check:
 ```
 echo %GCP_WORKLOAD_ID_PROVIDER%
 ```
-
 
 1. Create a Workload Identity Provider in that pool:
 
