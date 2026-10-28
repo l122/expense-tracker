@@ -59,7 +59,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /navbar", navbar.NewHandler(navbar.NewView(templates), s.db))
 	router.Handle("GET /dashboard", dashboard.NewHandler(dashboard.New(templates), s.db))
 	router.Handle("GET /about", about.NewAboutHandler(about.NewAboutView(templates, s.config)))
-	router.Handle("GET /expense", categoryexpenses.NewHandler(categoryexpenses.New(templates), s.db))
+	router.Handle("GET /category/{id}/expenses", categoryexpenses.NewHandler(categoryexpenses.New(templates), s.db))
 
 	return chainMiddlewares(
 		handler,

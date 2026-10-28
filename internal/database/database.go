@@ -30,6 +30,7 @@ type Service interface {
 	DeleteUser(ctx context.Context, userId int) error
 
 	GetCategoriesByUser(ctx context.Context, userId int) ([]domain.Category, error)
+	GetCategoryByIdForUser(ctx context.Context, categoryId int, userId int) (domain.Category, error)
 
 	GetAuthClient() gotrue.Client
 }

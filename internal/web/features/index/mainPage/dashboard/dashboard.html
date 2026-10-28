@@ -5,8 +5,8 @@
             {{if .}}
             <ul class="list-group list-group-flush">
                 {{range .}}
-                <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-2 py-3" role="button"
-                    hx-get="/expense" hx-target="#main_page">
+                <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-2 py-3"
+                    role="button" hx-get="/category/{{.Id}}/expenses" hx-target="#main_page">
                     <div class="d-flex align-items-center gap-3">
                         {{if .Icon}}
                         <span class="fs-4">{{.Icon}}</span>

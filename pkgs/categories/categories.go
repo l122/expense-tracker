@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/l122/expense-tracker/internal/domain"
 )
@@ -23,4 +24,16 @@ func FromHttpResponse(resp *http.Response) ([]domain.Category, error) {
 	}
 
 	return result, nil
+}
+
+func FromUrlPath(r *http.Request) (int, error) {
+	userId := r.PathValue("id")
+
+	res, err := strconv.Atoi(userId)
+	if err != nil {
+		fmt.Println("Error parsing string:", err)
+		return 0, err
+	}
+
+	return res, nil
 }

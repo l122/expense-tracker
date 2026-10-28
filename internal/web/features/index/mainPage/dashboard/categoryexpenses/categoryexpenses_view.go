@@ -3,6 +3,8 @@ package categoryexpenses
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/categoryexpenses/models"
 )
 
 type View struct {
@@ -15,8 +17,8 @@ func New(templ *template.Template) *View {
 	}
 }
 
-func (i *View) Index(w http.ResponseWriter) {
-	if err := i.templ.ExecuteTemplate(w, "categoryexpenses", nil); err != nil {
+func (i *View) Index(w http.ResponseWriter, data models.CategoryExpensesData) {
+	if err := i.templ.ExecuteTemplate(w, "categoryexpenses", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
