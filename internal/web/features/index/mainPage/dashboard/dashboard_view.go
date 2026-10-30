@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/l122/expense-tracker/internal/domain"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/models"
 )
 
 type View struct {
@@ -17,8 +17,8 @@ func New(templ *template.Template) *View {
 	}
 }
 
-func (i *View) Index(w http.ResponseWriter, categories []domain.Category) {
-	if err := i.templ.ExecuteTemplate(w, "dashboard", categories); err != nil {
+func (i *View) Index(w http.ResponseWriter, categoriesList models.CategoriesList) {
+	if err := i.templ.ExecuteTemplate(w, "dashboard", categoriesList); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

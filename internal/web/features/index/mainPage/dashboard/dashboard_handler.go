@@ -41,5 +41,10 @@ func (t *DashboardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error fetching categories: %v\n", err)
 	}
 
-	t.view.Index(w, categories)
+	expenses, err := t.repo.GetExpensesByUser(ctx, userId)
+	if err != nil {
+		fmt.Printf("Error fetching expenses: %v\n", err)
+	}
+
+	t.view.Index(w, newCategoriesList(categories, expenses))
 }

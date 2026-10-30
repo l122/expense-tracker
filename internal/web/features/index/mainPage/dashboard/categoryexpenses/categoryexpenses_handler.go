@@ -59,5 +59,9 @@ func (t *ExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expenses, err := t.repo.GetExpensesByCategoryIdAndUser(ctx, categoryId, userId)
+	if err != nil {
+		fmt.Printf("Error fetching expenses: %v\n", err)
+	}
+
 	t.view.Index(w, newCategoryExpensesData(category, expenses))
 }
