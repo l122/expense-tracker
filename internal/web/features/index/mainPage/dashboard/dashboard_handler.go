@@ -33,13 +33,11 @@ func (t *DashboardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userId, err := userid.FromRequest(r)
 	if err != nil {
-		// TODO: log
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
 	categories, err := t.repo.GetCategoriesByUser(ctx, userId)
 	if err != nil {
-		// TODO: log
 		fmt.Printf("Error fetching categories: %v\n", err)
 	}
 
