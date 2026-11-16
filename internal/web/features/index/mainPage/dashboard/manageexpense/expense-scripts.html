@@ -37,7 +37,7 @@
             dateBtn.textContent = formatDisplayDate(selected);
         });
 
-        // 2. Calculator & Amount Logic
+        // 2. Calculator & Amount Logic (Max 2 Decimal Digits)
         const amountInput = document.getElementById("amount-input");
         const backspaceBtn = document.getElementById("backspace-btn");
         let expression = amountInput.value || "";
@@ -48,7 +48,8 @@
             try {
                 const raw = Function('"use strict";return (' + clean + ")")();
                 if (!isFinite(raw) || isNaN(raw)) return "";
-                return Math.max(0, Math.round(raw)).toString();
+                // Round cleanly to 2 decimal places
+                return (Math.round(raw * 100) / 100).toString();
             } catch {
                 return expr;
             }
@@ -62,6 +63,27 @@
                     expression = evaluateExpression(expression);
                     amountInput.value = expression;
                     return;
+                }
+
+                // Get the current active number segment (split by operators)
+                const tokens = expression.split(/[\+\-\*\/]/);
+                const currentSegment = tokens[tokens.length - 1];
+
+                // Constraint 1: Prevent typing more than 2 digits after the decimal point
+                if (val >= "0" && val <= "9") {
+                    if (currentSegment.includes(".")) {
+                        const decimalPart = currentSegment.split(".")[1];
+                        if (decimalPart && decimalPart.length >= 2) {
+                            return; // Ignore extra digits beyond 2 decimal places
+                        }
+                    }
+                }
+
+                // Constraint 2: Prevent multiple decimal points in the same number segment
+                if (val === ".") {
+                    if (currentSegment.includes(".")) {
+                        return; // Ignore second decimal point
+                    }
                 }
 
                 const operators = ["+", "-", "*", "/", "."];
