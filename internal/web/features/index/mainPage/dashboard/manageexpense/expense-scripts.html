@@ -1,0 +1,93 @@
+{{define "expense-scripts"}}
+<script>
+    (function () {
+        // 1. Date Picker & Formatting Logic
+        const dateInput = document.getElementById("native-date-picker");
+        const dateBtn = document.getElementById("date-display-btn");
+        const hiddenIso = document.getElementById("expense_date_iso");
+
+        function formatDisplayDate(dateObj) {
+            const weekday = dateObj.toLocaleDateString("en-US", {
+                weekday: "long",
+            });
+            const day = dateObj.getDate();
+            const month = dateObj.toLocaleDateString("en-US", {
+                month: "long",
+            });
+            return `${weekday}, ${day} ${month}`;
+        }
+
+        function toIsoDate(dateObj) {
+            const offset = dateObj.getTimezoneOffset();
+            const local = new Date(dateObj.getTime() - offset * 60 * 1000);
+            return local.toISOString().split("T")[0];
+        }
+
+        let initialDate = hiddenIso.value
+            ? new Date(hiddenIso.value + "T00:00:00")
+            : new Date();
+        dateInput.value = toIsoDate(initialDate);
+        hiddenIso.value = dateInput.value;
+        dateBtn.textContent = formatDisplayDate(initialDate);
+
+        dateInput.addEventListener("change", function () {
+            if (!this.value) return;
+            const selected = new Date(this.value + "T00:00:00");
+            hiddenIso.value = this.value;
+            dateBtn.textContent = formatDisplayDate(selected);
+        });
+
+        // 2. Calculator & Amount Logic
+        const amountInput = document.getElementById("amount-input");
+        const backspaceBtn = document.getElementById("backspace-btn");
+        let expression = amountInput.value || "";
+
+        function evaluateExpression(expr) {
+            const clean = expr.replace(/[^0-9+\-*/.]/g, "");
+            if (!clean) return "";
+            try {
+                const raw = Function('"use strict";return (' + clean + ")")();
+                if (!isFinite(raw) || isNaN(raw)) return "";
+                return Math.max(0, Math.round(raw)).toString();
+            } catch {
+                return expr;
+            }
+        }
+
+        document.querySelectorAll(".calc-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const val = btn.dataset.val;
+
+                if (val === "=") {
+                    expression = evaluateExpression(expression);
+                    amountInput.value = expression;
+                    return;
+                }
+
+                const operators = ["+", "-", "*", "/", "."];
+                const lastChar = expression.slice(-1);
+                if (operators.includes(val) && operators.includes(lastChar)) {
+                    expression = expression.slice(0, -1) + val;
+                } else {
+                    expression += val;
+                }
+
+                amountInput.value = expression;
+            });
+        });
+
+        backspaceBtn.addEventListener("click", () => {
+            expression = expression.slice(0, -1);
+            amountInput.value = expression;
+        });
+
+        const expenseForm = document.getElementById("expense-form");
+        if (expenseForm) {
+            expenseForm.addEventListener("htmx:configRequest", (evt) => {
+                const resolved = evaluateExpression(expression) || "0";
+                evt.detail.parameters["amount"] = resolved;
+            });
+        }
+    })();
+</script>
+{{end}}
