@@ -1,19 +1,32 @@
 {{define "date-picker"}}
 <div class="text-center mb-4">
     <div class="position-relative d-inline-block">
+        <!-- Visible button that displays the formatted date -->
         <button
             type="button"
             id="date-display-btn"
             class="btn btn-light border rounded-pill px-3 py-1 fw-medium text-secondary"
-            onclick="document.getElementById('native-date-picker').showPicker()"
+            onclick="
+                const picker = document.getElementById('native-date-picker');
+                picker.showPicker ? picker.showPicker() : picker.focus();
+            "
         >
-            <!-- Populated via JS on load -->
+            <!-- Server-rendered fallback text or populated via JS -->
+            {{if .FormattedDate}}{{.FormattedDate}}{{else}}Select Date{{end}}
         </button>
+
+        <!-- Invisible native date input overlaid directly on the button -->
         <input
             type="date"
             id="native-date-picker"
-            class="position-absolute top-0 start-0 opacity-0 w-100 h-100"
-            style="cursor: pointer"
+            name="selected_date"
+            value="{{.DateValue}}"
+            class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+            style="pointer-events: none"
+            onchange="
+                document.getElementById('date-display-btn').textContent =
+                    this.value
+            "
         />
     </div>
 </div>
