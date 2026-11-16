@@ -37,77 +37,135 @@
             dateBtn.textContent = formatDisplayDate(selected);
         });
 
-        // 2. Calculator & Amount Logic (Max 2 Decimal Digits)
+        // 2. Rolling Calculator & Amount Logic
         const amountInput = document.getElementById("amount-input");
         const backspaceBtn = document.getElementById("backspace-btn");
-        let expression = amountInput.value || "";
 
-        function evaluateExpression(expr) {
-            const clean = expr.replace(/[^0-9+\-*/.]/g, "");
-            if (!clean) return "";
-            try {
-                const raw = Function('"use strict";return (' + clean + ")")();
-                if (!isFinite(raw) || isNaN(raw)) return "";
-                // Round cleanly to 2 decimal places
-                return (Math.round(raw * 100) / 100).toString();
-            } catch {
-                return expr;
+        let num1 = amountInput.value || "";
+        let op = "";
+        let num2 = "";
+
+        function updateDisplay() {
+            amountInput.value = num1 + op + num2;
+        }
+
+        function evaluate(n1, operator, n2) {
+            const a = parseFloat(n1);
+            const b = parseFloat(n2);
+            if (isNaN(a) || isNaN(b)) return n1;
+            let res = 0;
+            switch (operator) {
+                case "+":
+                    res = a + b;
+                    break;
+                case "-":
+                    res = a - b;
+                    break;
+                case "*":
+                    res = a * b;
+                    break;
+                case "/":
+                    res = b !== 0 ? a / b : a;
+                    break;
+                default:
+                    return n1;
             }
+            // Round cleanly to 2 decimal places
+            return (Math.round(res * 100) / 100).toString();
         }
 
         document.querySelectorAll(".calc-btn").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const val = btn.dataset.val;
 
+                // Equals (=)
                 if (val === "=") {
-                    expression = evaluateExpression(expression);
-                    amountInput.value = expression;
+                    if (num1 !== "" && op !== "" && num2 !== "") {
+                        num1 = evaluate(num1, op, num2);
+                        op = "";
+                        num2 = "";
+                        updateDisplay();
+                    }
                     return;
                 }
 
-                // Get the current active number segment (split by operators)
-                const tokens = expression.split(/[\+\-\*\/]/);
-                const currentSegment = tokens[tokens.length - 1];
+                // Operators (+, -, *, /)
+                if (["+", "-", "*", "/"].includes(val)) {
+                    if (num1 === "") {
+                        if (val === "-") {
+                            num1 = "-";
+                            updateDisplay();
+                        }
+                        return;
+                    }
 
-                // Constraint 1: Prevent typing more than 2 digits after the decimal point
+                    if (op !== "" && num2 !== "") {
+                        // Evaluate previous operation immediately before applying new operator
+                        num1 = evaluate(num1, op, num2);
+                        op = val;
+                        num2 = "";
+                    } else {
+                        op = val;
+                    }
+                    updateDisplay();
+                    return;
+                }
+
+                // Numbers & Decimal Point (0-9, .)
+                let target = op === "" ? "num1" : "num2";
+                let currentVal = target === "num1" ? num1 : num2;
+
+                // Prevent multiple decimal points
+                if (val === ".") {
+                    if (currentVal.includes(".")) return;
+                    if (currentVal === "") currentVal = "0";
+                }
+
+                // Max 2 decimal digits constraint
                 if (val >= "0" && val <= "9") {
-                    if (currentSegment.includes(".")) {
-                        const decimalPart = currentSegment.split(".")[1];
-                        if (decimalPart && decimalPart.length >= 2) {
-                            return; // Ignore extra digits beyond 2 decimal places
+                    if (currentVal.includes(".")) {
+                        const parts = currentVal.split(".");
+                        if (parts[1] && parts[1].length >= 2) {
+                            return;
                         }
                     }
                 }
 
-                // Constraint 2: Prevent multiple decimal points in the same number segment
-                if (val === ".") {
-                    if (currentSegment.includes(".")) {
-                        return; // Ignore second decimal point
-                    }
-                }
+                currentVal += val;
 
-                const operators = ["+", "-", "*", "/", "."];
-                const lastChar = expression.slice(-1);
-                if (operators.includes(val) && operators.includes(lastChar)) {
-                    expression = expression.slice(0, -1) + val;
+                if (target === "num1") {
+                    num1 = currentVal;
                 } else {
-                    expression += val;
+                    num2 = currentVal;
                 }
-
-                amountInput.value = expression;
+                updateDisplay();
             });
         });
 
+        // Backspace button logic
         backspaceBtn.addEventListener("click", () => {
-            expression = expression.slice(0, -1);
-            amountInput.value = expression;
+            if (num2 !== "") {
+                num2 = num2.slice(0, -1);
+            } else if (op !== "") {
+                op = "";
+            } else if (num1 !== "") {
+                num1 = num1.slice(0, -1);
+            }
+            updateDisplay();
         });
 
+        // Ensure final expression is evaluated before submitting/sending via HTMX
         const expenseForm = document.getElementById("expense-form");
         if (expenseForm) {
             expenseForm.addEventListener("htmx:configRequest", (evt) => {
-                const resolved = evaluateExpression(expression) || "0";
-                evt.detail.parameters["amount"] = resolved;
+                if (num1 !== "" && op !== "" && num2 !== "") {
+                    num1 = evaluate(num1, op, num2);
+                    op = "";
+                    num2 = "";
+                    updateDisplay();
+                }
+                const finalVal = num1 !== "" ? num1 : "0";
+                evt.detail.parameters["amount"] = finalVal;
             });
         }
     })();
