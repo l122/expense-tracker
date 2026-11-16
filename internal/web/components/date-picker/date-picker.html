@@ -1,0 +1,20 @@
+{{define "date-picker"}}
+<div class="text-center mb-4">
+    <div class="position-relative d-inline-block">
+        <button
+            type="button"
+            id="date-display-btn"
+            class="btn btn-light border rounded-pill px-3 py-1 fw-medium text-secondary"
+            onclick="document.getElementById('native-date-picker').showPicker()"
+        >
+            <!-- Populated via JS on load -->
+        </button>
+        <input
+            type="date"
+            id="native-date-picker"
+            class="position-absolute top-0 start-0 opacity-0 w-100 h-100"
+            style="cursor: pointer"
+        />
+    </div>
+</div>
+{{end}}
