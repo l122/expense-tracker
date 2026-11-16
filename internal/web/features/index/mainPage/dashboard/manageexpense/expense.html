@@ -6,9 +6,11 @@
 </style>
 <div class="container py-3" style="max-width: 480px;">
     <!-- Top Header with Back Button -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        {{template "return-button"}}
-        <h5 class="mb-0 fw-semibold">
+    <div class="d-flex align-items-center justify-content-between mb-3 position-relative">
+        <div>
+            {{template "return-button"}}
+        </div>
+        <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
             {{if .Expense.Id}}Edit expense{{else}}New expense{{end}}
         </h5>
         <div style="width: 24px;"></div>
