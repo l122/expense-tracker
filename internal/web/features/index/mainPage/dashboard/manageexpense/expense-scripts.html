@@ -142,8 +142,12 @@
             });
         });
 
-        // Backspace button logic
-        backspaceBtn.addEventListener("click", () => {
+        // Backspace button: single tap erases 1 character, press-and-hold clears everything
+        let holdTimer = null;
+        let isLongPress = false;
+        const HOLD_DURATION_MS = 500;
+
+        function eraseSingleChar() {
             if (num2 !== "") {
                 num2 = num2.slice(0, -1);
             } else if (op !== "") {
@@ -152,7 +156,44 @@
                 num1 = num1.slice(0, -1);
             }
             updateDisplay();
+        }
+
+        function clearAll() {
+            num1 = "";
+            op = "";
+            num2 = "";
+            updateDisplay();
+        }
+
+        backspaceBtn.addEventListener("pointerdown", (e) => {
+            if (e.button !== 0 && e.pointerType === "mouse") return;
+            isLongPress = false;
+            backspaceBtn.classList.add("is-pressed");
+
+            holdTimer = setTimeout(() => {
+                isLongPress = true;
+                clearAll();
+                // Subtle haptic pulse on supported mobile browsers
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+            }, HOLD_DURATION_MS);
         });
+
+        function endBackspacePress() {
+            clearTimeout(holdTimer);
+            backspaceBtn.classList.remove("is-pressed");
+        }
+
+        backspaceBtn.addEventListener("pointerup", () => {
+            endBackspacePress();
+            if (!isLongPress) {
+                eraseSingleChar();
+            }
+        });
+
+        backspaceBtn.addEventListener("pointerleave", endBackspacePress);
+        backspaceBtn.addEventListener("pointercancel", endBackspacePress);
 
         // Ensure final expression is evaluated before submitting/sending via HTMX
         const expenseForm = document.getElementById("expense-form");

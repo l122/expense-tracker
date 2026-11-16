@@ -12,6 +12,17 @@
             justify-content: space-between;
         }
     }
+    /* Visual feedback matching calculator buttons when tapped or held */
+        #backspace-btn {
+            transition: background-color 0.1s ease, transform 0.08s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #backspace-btn:active,
+        #backspace-btn.is-pressed {
+            background-color: #e9ecef !important;
+            transform: scale(0.95);
+        }
 </style>
 
 <div class="container py-3 expense-container" style="max-width: 480px;">
