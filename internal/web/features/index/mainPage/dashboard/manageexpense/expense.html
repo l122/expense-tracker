@@ -13,12 +13,13 @@
         }
     }
 </style>
+
 <div class="container py-3 expense-container" style="max-width: 480px;">
     <div>
-        <!-- Top Header with Back Button (Moved slightly lower) -->
+        <!-- Top Header with Back Button -->
         <div class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative">
             <div>
-                {{template "return-button"}}
+                {{template "return-button" .ReturnUrl}}
             </div>
             <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
                 {{if .Expense.Id}}Edit expense{{else}}New expense{{end}}
@@ -32,9 +33,14 @@
             {{end}}
             <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
 
+            <!-- Hidden Category ID placed inside the form so hx-include captures it -->
+            {{if .Category}}
+            <input type="hidden" name="category_id" value="{{.Category.Id}}">
+            {{end}}
+
             <!-- Wrapper with even vertical spacing (gap-3) between Date Picker, Amount, and Note -->
             <div class="d-flex flex-column gap-3 mb-4">
-                <!-- Date Picker (Moved lower) -->
+                <!-- Date Picker -->
                 <div class="mt-2">
                     {{template "date-picker"}}
                 </div>
@@ -76,13 +82,24 @@
         </form>
     </div>
 
-    <!-- Bottom Section: Calculator & Choose Category Button anchored to bottom on mobile -->
+    <!-- Bottom Section: Calculator & Action Button -->
     <div class="pb-3">
         <!-- Reused Calculator Template -->
         {{template "calculator"}}
 
-        <!-- Wide Bottom Action Button -->
+        <!-- Wide Bottom Action Button / Category Display -->
         <div class="d-grid mt-3">
+            {{if and .Category (gt .Category.Id 0)}}
+            <button
+                type="button"
+                class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
+                hx-post="/expenses"
+                hx-include="#expense-form"
+                hx-target="#main_page"
+            >
+                Add to {{.Category.Name}}
+            </button>
+            {{else}}
             <button
                 type="button"
                 class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
@@ -92,6 +109,7 @@
             >
                 Choose category
             </button>
+            {{end}}
         </div>
     </div>
 </div>

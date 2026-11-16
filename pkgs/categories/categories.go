@@ -27,9 +27,21 @@ func FromHttpResponse(resp *http.Response) ([]domain.Category, error) {
 }
 
 func FromUrlPath(r *http.Request) (int, error) {
-	userId := r.PathValue("id")
+	categoryId := r.PathValue("id")
 
-	res, err := strconv.Atoi(userId)
+	res, err := strconv.Atoi(categoryId)
+	if err != nil {
+		fmt.Println("Error parsing string:", err)
+		return 0, err
+	}
+
+	return res, nil
+}
+
+func FromUrlQuery(r *http.Request) (int, error) {
+	categoryId := r.URL.Query().Get("category")
+
+	res, err := strconv.Atoi(categoryId)
 	if err != nil {
 		fmt.Println("Error parsing string:", err)
 		return 0, err
