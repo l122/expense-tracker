@@ -1,0 +1,11 @@
+{{define "calc-button"}}
+<div class="col-3">
+    <button
+        type="button"
+        class="btn {{if eq . "="}}btn-primary-subtle{{else if or (eq . "+") (eq . "-") (eq . "*") (eq . "/")}}btn-secondary-subtle{{else}}btn-light{{end}} border w-100 py-3 fs-4 fw-semibold calc-btn"
+        data-val="{{.}}"
+    >
+        {{if eq . "-"}}&minus;{{else if eq . "*"}}&times;{{else if eq . "/"}}&divide;{{else}}{{.}}{{end}}
+    </button>
+</div>
+{{end}}
