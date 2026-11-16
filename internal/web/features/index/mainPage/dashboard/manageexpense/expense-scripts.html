@@ -195,20 +195,20 @@
         backspaceBtn.addEventListener("pointerleave", endBackspacePress);
         backspaceBtn.addEventListener("pointercancel", endBackspacePress);
 
-        // Ensure final expression is evaluated before submitting/sending via HTMX
-        const expenseForm = document.getElementById("expense-form");
-        if (expenseForm) {
-            expenseForm.addEventListener("htmx:configRequest", (evt) => {
-                if (num1 !== "" && op !== "" && num2 !== "") {
-                    num1 = evaluate(num1, op, num2);
-                    op = "";
-                    num2 = "";
-                    updateDisplay();
-                }
-                const finalVal = num1 !== "" ? num1 : "0";
-                evt.detail.parameters["amount"] = finalVal;
-            });
-        }
+        // Ensure final expression is evaluated & date is synced before HTMX POST
+        document.body.addEventListener("htmx:configRequest", (evt) => {
+            if (!evt.detail.elt.closest(".expense-container")) return;
+
+            if (num1 !== "" && op !== "" && num2 !== "") {
+                num1 = evaluate(num1, op, num2);
+                op = "";
+                num2 = "";
+                updateDisplay();
+            }
+            const finalVal = num1 !== "" ? num1 : "0";
+            evt.detail.parameters["amount"] = finalVal;
+            evt.detail.parameters["expense_date"] = hiddenIso.value;
+        });
     })();
 </script>
 {{end}}

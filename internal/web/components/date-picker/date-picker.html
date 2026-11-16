@@ -11,22 +11,15 @@
                 picker.showPicker ? picker.showPicker() : picker.focus();
             "
         >
-            <!-- Server-rendered fallback text or populated via JS -->
-            {{if .FormattedDate}}{{.FormattedDate}}{{else}}Select Date{{end}}
+            Select Date
         </button>
 
         <!-- Invisible native date input overlaid directly on the button -->
         <input
             type="date"
             id="native-date-picker"
-            name="selected_date"
-            value="{{.DateValue}}"
             class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
             style="pointer-events: none"
-            onchange="
-                document.getElementById('date-display-btn').textContent =
-                    this.value
-            "
         />
     </div>
 </div>
