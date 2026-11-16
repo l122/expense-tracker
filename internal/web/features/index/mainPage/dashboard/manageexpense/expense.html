@@ -3,70 +3,89 @@
     #sandwich_menu {
         display: none !important;
     }
+    /* On mobile, make the container fill the screen height and push calculator to the bottom */
+    @media (max-width: 768px) {
+        .expense-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+    }
 </style>
-<div class="container py-3" style="max-width: 480px;">
-    <!-- Top Header with Back Button -->
-    <div class="d-flex align-items-center justify-content-between mb-3 position-relative">
-        <div>
-            {{template "return-button"}}
+<div class="container py-3 expense-container" style="max-width: 480px;">
+    <div>
+        <!-- Top Header with Back Button (Moved slightly lower) -->
+        <div class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative">
+            <div>
+                {{template "return-button"}}
+            </div>
+            <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
+                {{if .Expense.Id}}Edit expense{{else}}New expense{{end}}
+            </h5>
+            <div style="width: 24px;"></div>
         </div>
-        <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
-            {{if .Expense.Id}}Edit expense{{else}}New expense{{end}}
-        </h5>
-        <div style="width: 24px;"></div>
+
+        <form id="expense-form">
+            {{if .Expense.Id}}
+            <input type="hidden" name="id" value="{{.Expense.Id}}">
+            {{end}}
+            <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
+
+            <!-- Wrapper with even vertical spacing (gap-3) between Date Picker, Amount, and Note -->
+            <div class="d-flex flex-column gap-3 mb-4">
+                <!-- Date Picker (Moved lower) -->
+                <div class="mt-2">
+                    {{template "date-picker"}}
+                </div>
+
+                <!-- Amount Row: Currency + Decimal Input + Backspace Button -->
+                <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border">
+                    <span class="input-group-text bg-white fw-bold text-muted border-0 px-3">USD</span>
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        id="amount-input"
+                        name="amount"
+                        class="form-control text-end fw-bold fs-3 border-0 bg-white"
+                        placeholder="0"
+                        value="{{if .Expense.Amount}}{{printf "%.2f" .Expense.Amount}}{{end}}"
+                        readonly
+                    >
+                    <button
+                        type="button"
+                        id="backspace-btn"
+                        class="btn btn-light border-0 bg-white text-dark px-3"
+                        aria-label="Erase last digit"
+                    >
+                        &#9003;
+                    </button>
+                </div>
+
+                <!-- Note Input -->
+                <div>
+                    <input
+                        type="text"
+                        name="notes"
+                        class="form-control form-control-lg shadow-sm"
+                        placeholder="Add a note..."
+                        value="{{.Expense.Notes}}"
+                    >
+                </div>
+            </div>
+        </form>
     </div>
 
-    <form id="expense-form">
-        {{if .Expense.Id}}
-        <input type="hidden" name="id" value="{{.Expense.Id}}">
-        {{end}}
-        <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
-
-        <!-- Reused Date Picker Template -->
-        {{template "date-picker"}}
-
-        <!-- Amount Row: Currency + Integer Input + Backspace Button -->
-        <div class="input-group input-group-lg mb-3 shadow-sm">
-            <span class="input-group-text bg-white fw-bold text-muted border-end-0">USD</span>
-            <input
-                type="text"
-                inputmode="numeric"
-                id="amount-input"
-                name="amount"
-                class="form-control text-end fw-bold fs-3 border-start-0 border-end-0 bg-white"
-                placeholder="0"
-                value="{{if .Expense.Amount}}{{printf "%.0f" .Expense.Amount}}{{end}}"
-                readonly
-            >
-            <button
-                type="button"
-                id="backspace-btn"
-                class="btn btn-outline-secondary border-start-0 bg-white text-dark"
-                aria-label="Erase last digit"
-            >
-                &#9003;
-            </button>
-        </div>
-
-        <!-- Note Input -->
-        <div class="mb-4">
-            <input
-                type="text"
-                name="notes"
-                class="form-control form-control-lg"
-                placeholder="Add a note..."
-                value="{{.Expense.Notes}}"
-            >
-        </div>
-
+    <!-- Bottom Section: Calculator & Choose Category Button anchored to bottom on mobile -->
+    <div class="pb-3">
         <!-- Reused Calculator Template -->
         {{template "calculator"}}
 
         <!-- Wide Bottom Action Button -->
-        <div class="d-grid">
+        <div class="d-grid mt-3">
             <button
                 type="button"
-                class="btn btn-primary btn-lg py-3 fw-semibold"
+                class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
                 hx-post="/expenses/select-category"
                 hx-include="#expense-form"
                 hx-target="#main_page"
@@ -74,7 +93,7 @@
                 Choose category
             </button>
         </div>
-    </form>
+    </div>
 </div>
 
 {{template "expense-scripts"}}
