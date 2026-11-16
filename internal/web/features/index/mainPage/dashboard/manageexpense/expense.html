@@ -1,0 +1,211 @@
+{{define "expense"}}
+<div class="container py-3" style="max-width: 480px;">
+    <!-- Top Header with Back Button -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <button
+            type="button"
+            class="btn btn-link text-dark p-0 text-decoration-none fs-4"
+            hx-get="/dashboard"
+            hx-target="#main_page"
+            aria-label="Back"
+        >
+            &larr;
+        </button>
+        <h5 class="mb-0 fw-semibold">
+            {{if .Expense.Id}}Edit expense{{else}}New expense{{end}}
+        </h5>
+        <div style="width: 24px;"></div> <!-- Spacer to keep header centered -->
+    </div>
+
+    <form id="expense-form">
+        <!-- Hidden fields for Edit mode / Backend submission -->
+        {{if .Expense.Id}}
+        <input type="hidden" name="id" value="{{.Expense.Id}}">
+        {{end}}
+        <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
+
+        <!-- Centered Date Picker ("Monday, 16 November") -->
+        <div class="text-center mb-4">
+            <div class="position-relative d-inline-block">
+                <button
+                    type="button"
+                    id="date-display-btn"
+                    class="btn btn-light border rounded-pill px-3 py-1 fw-medium text-secondary"
+                    onclick="document.getElementById('native-date-picker').showPicker()"
+                >
+                    <!-- Populated via JS on load -->
+                </button>
+                <input
+                    type="date"
+                    id="native-date-picker"
+                    class="position-absolute top-0 start-0 opacity-0 w-100 h-100"
+                    style="cursor: pointer;"
+                >
+            </div>
+        </div>
+
+        <!-- Amount Row: Currency + Integer Input + Backspace Button -->
+        <div class="input-group input-group-lg mb-3 shadow-sm">
+            <span class="input-group-text bg-white fw-bold text-muted border-end-0">USD</span>
+            <input
+                type="text"
+                inputmode="numeric"
+                id="amount-input"
+                name="amount"
+                class="form-control text-end fw-bold fs-3 border-start-0 border-end-0 bg-white"
+                placeholder="0"
+                value="{{if .Expense.Amount}}{{printf "%.0f" .Expense.Amount}}{{end}}"
+                readonly
+            >
+            <button
+                type="button"
+                id="backspace-btn"
+                class="btn btn-outline-secondary border-start-0 bg-white text-dark"
+                aria-label="Erase last digit"
+            >
+                &#9003;
+            </button>
+        </div>
+
+        <!-- Note Input -->
+        <div class="mb-4">
+            <input
+                type="text"
+                name="notes"
+                class="form-control form-control-lg"
+                placeholder="Add a note..."
+                value="{{.Expense.Notes}}"
+            >
+        </div>
+
+        <!-- 4x4 Calculator Grid -->
+        <div class="row g-2 mb-4" id="calc-grid">
+            <!-- Row 1 -->
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="1">1</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="2">2</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="3">3</button></div>
+            <div class="col-3"><button type="button" class="btn btn-secondary-subtle border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="+">+</button></div>
+
+            <!-- Row 2 -->
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="4">4</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="5">5</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="6">6</button></div>
+            <div class="col-3"><button type="button" class="btn btn-secondary-subtle border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="-">&minus;</button></div>
+
+            <!-- Row 3 -->
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="7">7</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="8">8</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="9">9</button></div>
+            <div class="col-3"><button type="button" class="btn btn-secondary-subtle border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="*">&times;</button></div>
+
+            <!-- Row 4 -->
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val=".">.</button></div>
+            <div class="col-3"><button type="button" class="btn btn-light border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="0">0</button></div>
+            <div class="col-3"><button type="button" class="btn btn-primary-subtle border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="=">=</button></div>
+            <div class="col-3"><button type="button" class="btn btn-secondary-subtle border w-100 py-3 fs-4 fw-semibold calc-btn" data-val="/">&divide;</button></div>
+        </div>
+
+        <!-- Wide Bottom Action Button -->
+        <div class="d-grid">
+            <button
+                type="button"
+                class="btn btn-primary btn-lg py-3 fw-semibold"
+                hx-post="/expenses/select-category"
+                hx-include="#expense-form"
+                hx-target="#main_page"
+            >
+                Choose category
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    // 1. Date Picker & Formatting ("Monday, 16 November")
+    const dateInput = document.getElementById('native-date-picker');
+    const dateBtn = document.getElementById('date-display-btn');
+    const hiddenIso = document.getElementById('expense_date_iso');
+
+    function formatDisplayDate(dateObj) {
+        const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+        const day = dateObj.getDate();
+        const month = dateObj.toLocaleDateString('en-US', { month: 'long' });
+        return `${weekday}, ${day} ${month}`;
+    }
+
+    function toIsoDate(dateObj) {
+        const offset = dateObj.getTimezoneOffset();
+        const local = new Date(dateObj.getTime() - (offset * 60 * 1000));
+        return local.toISOString().split('T')[0];
+    }
+
+    // Initialize with existing expense date (edit mode) or today's date (new mode)
+    let initialDate = hiddenIso.value ? new Date(hiddenIso.value + 'T00:00:00') : new Date();
+    dateInput.value = toIsoDate(initialDate);
+    hiddenIso.value = dateInput.value;
+    dateBtn.textContent = formatDisplayDate(initialDate);
+
+    dateInput.addEventListener('change', function() {
+        if (!this.value) return;
+        const selected = new Date(this.value + 'T00:00:00');
+        hiddenIso.value = this.value;
+        dateBtn.textContent = formatDisplayDate(selected);
+    });
+
+    // 2. Calculator & Integer-Only Amount Logic
+    const amountInput = document.getElementById('amount-input');
+    const backspaceBtn = document.getElementById('backspace-btn');
+    let expression = amountInput.value || '';
+
+    function evaluateExpression(expr) {
+        // Sanitize to allow only digits and math operators
+        const clean = expr.replace(/[^0-9+\-*/.]/g, '');
+        if (!clean) return '';
+        try {
+            const raw = Function('"use strict";return (' + clean + ')')();
+            if (!isFinite(raw) || isNaN(raw)) return '';
+            // Round to integer as requested ("input field for integers only")
+            return Math.max(0, Math.round(raw)).toString();
+        } catch {
+            return expr;
+        }
+    }
+
+    document.querySelectorAll('.calc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const val = btn.dataset.val;
+
+            if (val === '=') {
+                expression = evaluateExpression(expression);
+                amountInput.value = expression;
+                return;
+            }
+
+            // Prevent duplicate consecutive operators
+            const operators = ['+', '-', '*', '/', '.'];
+            const lastChar = expression.slice(-1);
+            if (operators.includes(val) && operators.includes(lastChar)) {
+                expression = expression.slice(0, -1) + val;
+            } else {
+                expression += val;
+            }
+
+            amountInput.value = expression;
+        });
+    });
+
+    // Erase one digit/character from the right
+    backspaceBtn.addEventListener('click', () => {
+        expression = expression.slice(0, -1);
+        amountInput.value = expression;
+    });
+
+    // Ensure final value is resolved to an integer before submitting "Choose category"
+    document.getElementById('expense-form').addEventListener('htmx:configRequest', (evt) => {
+        const resolved = evaluateExpression(expression) || '0';
+        evt.detail.parameters['amount'] = resolved;
+    });
+})();
+</script>
+{{end}}

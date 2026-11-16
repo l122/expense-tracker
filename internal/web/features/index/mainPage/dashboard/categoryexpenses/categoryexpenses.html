@@ -8,8 +8,12 @@
     {{template "return-button"}}
 
     <div class="text-center mb-4 mb-md-5">
-        <h1 class="display-5 fw-bold text-uppercase mb-1">{{.Category.Name}}</h1>
-        <p class="fs-2 fw-semibold text-muted mb-0">${{printf "%.2f" .TotalAmount}}</p>
+        <h1 class="display-5 fw-bold text-uppercase mb-1">
+            {{.Category.Name}}
+        </h1>
+        <p class="fs-2 fw-semibold text-muted mb-0">
+            ${{printf "%.2f" .TotalAmount}}
+        </p>
     </div>
 
     <div class="d-flex flex-column gap-4 pb-5 mb-4">
@@ -19,15 +23,21 @@
             <div class="card shadow-sm border-0">
                 <ul class="list-group list-group-flush">
                     {{range .Expenses}}
-                    <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-3 px-md-4 py-3"
-                        role="button">
+                    <li
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-3 px-md-4 py-3"
+                        role="button"
+                    >
                         <div class="me-3 overflow-hidden">
                             <div class="fw-semibold">{{$.Category.Name}}</div>
                             {{if .Notes}}
-                            <div class="small text-muted text-truncate">{{.Notes}}</div>
+                            <div class="small text-muted text-truncate">
+                                {{.Notes}}
+                            </div>
                             {{end}}
                         </div>
-                        <span class="fw-bold text-nowrap">${{printf "%.2f" .Amount}}</span>
+                        <span class="fw-bold text-nowrap"
+                            >${{printf "%.2f" .Amount}}</span
+                        >
                     </li>
                     {{end}}
                 </ul>
@@ -36,6 +46,6 @@
         {{end}}
     </div>
 
-    {{template "add-expense-button"}}
+    {{template "add-expense-button" .Category.Id}}
 </div>
 {{end}}
