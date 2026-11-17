@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Expense struct {
-	Id          int       `json:"id"`
+	Id          int       `json:"id,omitempty"`
 	ExpenseDate time.Time `json:"expense_date"`
 	ProfileId   int       `json:"profile_id"`
 	CategoryId  int       `json:"category_id"`

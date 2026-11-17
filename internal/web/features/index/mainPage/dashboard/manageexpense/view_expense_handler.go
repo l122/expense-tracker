@@ -15,21 +15,21 @@ import (
 	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
-type ManageExpenseHandler struct {
+type ViewExpenseHandler struct {
 	http.Handler
 
 	view *View
 	repo database.Service
 }
 
-func New(view *View, repo database.Service) *ManageExpenseHandler {
-	return &ManageExpenseHandler{
+func NewViewExpenseHandler(view *View, repo database.Service) *ViewExpenseHandler {
+	return &ViewExpenseHandler{
 		view: view,
 		repo: repo,
 	}
 }
 
-func (t *ManageExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *ViewExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	accessToken := token.FromRequestOrPanic(r)
