@@ -6,6 +6,7 @@ type ChooseCategoryData struct {
 	ParentAmount    float64
 	ParentNote      string
 	Categories      []domain.Category
+	Expense         domain.Expense
 	ReturnUrl       string
 	ParentReturnUrl string
 }

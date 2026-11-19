@@ -27,7 +27,6 @@
 
 <div class="container py-3 expense-container" style="max-width: 480px;">
     <div>
-        <!-- Top Header with Back Button -->
         <div class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative">
             <div>
                 {{template "return-button" .ReturnUrl}}
@@ -39,6 +38,11 @@
         </div>
 
         <form id="expense-form">
+            <input
+                type="hidden"
+                name="return_url"
+                value="{{.ReturnUrl}}"
+            />
             {{if .Expense.Id}}
             <input type="hidden" name="id" value="{{.Expense.Id}}">
             {{end}}

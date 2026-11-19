@@ -29,8 +29,9 @@
     <p class="text-center text-muted">No categories found.</p>
     {{end}}
     <form id="category-preserve-form" style="display: none">
-        <input type="hidden" name="amount" value="{{.ParentAmount}}" />
-        <input type="hidden" name="note" value="{{.ParentNote}}" />
+        <input type="hidden" name="amount" value="{{.Expense.Amount}}" />
+        <input type="hidden" name="note" value="{{.Expense.Notes}}" />
+        <input type="hidden" name="date" value="{{.Expense.ExpenseDate}}" />
         <input
             type="hidden"
             name="parentReturnUrl"
