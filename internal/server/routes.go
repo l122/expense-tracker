@@ -66,6 +66,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("POST /category/select", selectcategory.NewChooseCategoryHandler(selectcategory.NewView(templates), s.db))
 	router.Handle("GET /expense", manageexpense.NewViewExpenseHandler(expense.NewView(templates), s.db))
 	router.Handle("POST /expense", manageexpense.NewCreateExpenseHandler(s.db))
+	// router.Handle("POST /expense/select-category", manageexpense.NewCreateExpenseHandler(s.db))
 
 	return chainMiddlewares(
 		handler,

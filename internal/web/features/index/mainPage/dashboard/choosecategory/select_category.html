@@ -11,13 +11,11 @@
     {{if .Categories}}
     <ul class="list-group">
         {{range .Categories}}
-        <li
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >
+        <li class="list-group-item d-flex align-items-center">
             <button
                 type="button"
-                class="btn btn-sm btn-primary"
-                hx-post="/expenses/select-category"
+                class="btn btn-sm btn-outline-secondary w-100 text-start"
+                hx-post="/expense/select-category"
                 hx-include="#category-preserve-form"
                 hx-target="#main_page"
                 hx-swap="outerHTML"
