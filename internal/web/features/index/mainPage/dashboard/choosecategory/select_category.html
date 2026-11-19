@@ -1,0 +1,43 @@
+{{define "selectcategory"}}
+<style>
+    #sandwich_menu {
+        display: none !important;
+    }
+</style>
+
+<div class="container py-3">
+    {{template "return-button" .ReturnUrl}}
+    <h5 class="text-center mb-4">Select Category</h5>
+    {{if .Categories}}
+    <ul class="list-group">
+        {{range .Categories}}
+        <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+        >
+            <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                hx-post="/expenses/select-category"
+                hx-include="#category-preserve-form"
+                hx-target="#main_page"
+                hx-swap="outerHTML"
+            >
+                {{.Name}}
+            </button>
+        </li>
+        {{end}}
+    </ul>
+    {{else}}
+    <p class="text-center text-muted">No categories found.</p>
+    {{end}}
+    <form id="category-preserve-form" style="display: none">
+        <input type="hidden" name="amount" value="{{.ParentAmount}}" />
+        <input type="hidden" name="note" value="{{.ParentNote}}" />
+        <input
+            type="hidden"
+            name="parentReturnUrl"
+            value="{{.ParentReturnUrl}}"
+        />
+    </form>
+</div>
+{{end}}
