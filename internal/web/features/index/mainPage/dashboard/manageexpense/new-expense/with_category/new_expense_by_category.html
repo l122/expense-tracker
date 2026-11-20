@@ -82,15 +82,7 @@
     <div class="pb-3">
         {{template "calculator"}}
         <div class="d-grid mt-3">
-            <button
-                type="button"
-                class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
-                hx-post="/expense"
-                hx-include="#expense-form"
-                hx-target="#main_page"
-            >
-                Add to {{.Category.Name}}
-            </button>
+            {{template "add_to_category_button" .Category.Name}}
         </div>
     </div>
 </div>
