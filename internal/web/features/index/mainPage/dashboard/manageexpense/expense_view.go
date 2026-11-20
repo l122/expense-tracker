@@ -16,7 +16,7 @@ func NewView(templ *template.Template) *View {
 }
 
 func (i *View) Index(w http.ResponseWriter, data any) {
-	if err := i.templ.ExecuteTemplate(w, "expense", data); err != nil {
+	if err := i.templ.ExecuteTemplate(w, "new_expense", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

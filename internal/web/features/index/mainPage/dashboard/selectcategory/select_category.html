@@ -14,8 +14,10 @@
         <li class="list-group-item d-flex align-items-center">
             <button
                 type="button"
+                name="category_id"
+                value="{{.Id}}"
                 class="btn btn-sm btn-outline-secondary w-100 text-start"
-                hx-post="/category/{{.Id}}/expense/edit"
+                hx-post="/expense"
                 hx-include="#category-preserve-form"
                 hx-target="#main_page"
                 hx-swap="outerHTML"
@@ -34,7 +36,7 @@
         <input
             type="hidden"
             name="expense_date"
-            value="{{.Expense.ExpenseDate}}"
+            value="{{.Expense.ExpenseDate.Format "2006-01-02"}}"
         />
         <input type="hidden" name="return_url" value="{{.ParentReturnUrl}}" />
     </form>
