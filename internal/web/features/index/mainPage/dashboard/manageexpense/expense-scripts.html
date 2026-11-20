@@ -1,224 +1,57 @@
 {{define "expense-scripts"}}
 <script>
     (function () {
-        // 1. Date Picker & Formatting Logic
-        const dateInput = document.getElementById("native-date-picker");
-        const dateBtn = document.getElementById("date-display-btn");
-        const hiddenIso = document.getElementById("expense_date_iso");
+        // Scope everything to this page's container. The script is executed by
+        // HTMX while the new nodes are inserted, so look next to the script
+        // first and fall back to the whole document.
+        const scope =
+            (document.currentScript && document.currentScript.parentElement) ||
+            document;
+        const container = scope.querySelector(".expense-container");
+        if (!container) return;
 
-        function formatDisplayDate(dateObj) {
-            const weekday = dateObj.toLocaleDateString("en-US", {
-                weekday: "long",
-            });
-            const day = dateObj.getDate();
-            const month = dateObj.toLocaleDateString("en-US", {
-                month: "long",
-            });
-            return `${weekday}, ${day} ${month}`;
+        // Each section is initialised on its own: a failure in one of them
+        // must never stop the other from working.
+        let dateApi = null;
+        let calcApi = null;
+
+        try {
+            dateApi = initDatePicker(container);
+        } catch (err) {
+            console.error("expense: date picker init failed", err);
         }
 
-        function toIsoDate(dateObj) {
-            const offset = dateObj.getTimezoneOffset();
-            const local = new Date(dateObj.getTime() - offset * 60 * 1000);
-            return local.toISOString().split("T")[0];
+        try {
+            calcApi = initCalculator(container);
+        } catch (err) {
+            console.error("expense: calculator init failed", err);
         }
 
-        let initialDate = hiddenIso.value
-            ? new Date(hiddenIso.value + "T00:00:00")
-            : new Date();
-        dateInput.value = toIsoDate(initialDate);
-        hiddenIso.value = dateInput.value;
-        dateBtn.textContent = formatDisplayDate(initialDate);
-
-        dateInput.addEventListener("change", function () {
-            if (!this.value) return;
-            const selected = new Date(this.value + "T00:00:00");
-            hiddenIso.value = this.value;
-            dateBtn.textContent = formatDisplayDate(selected);
-        });
-
-        // 2. Rolling Calculator & Amount Logic
-        const amountInput = document.getElementById("amount-input");
-        const backspaceBtn = document.getElementById("backspace-btn");
-
-        let num1 = amountInput.value || "";
-        let op = "";
-        let num2 = "";
-
-        function updateDisplay() {
-            amountInput.value = num1 + op + num2;
-        }
-
-        function evaluate(n1, operator, n2) {
-            const a = parseFloat(n1);
-            const b = parseFloat(n2);
-            if (isNaN(a) || isNaN(b)) return n1;
-            let res = 0;
-            switch (operator) {
-                case "+":
-                    res = a + b;
-                    break;
-                case "-":
-                    res = a - b;
-                    break;
-                case "*":
-                    res = a * b;
-                    break;
-                case "/":
-                    res = b !== 0 ? a / b : a;
-                    break;
-                default:
-                    return n1;
+        // 3. HTMX hooks. Registered on the container (not on document.body),
+        // so they are removed together with the page instead of piling up on
+        // every visit.
+        container.addEventListener("htmx:configRequest", (evt) => {
+            // Evaluate a pending expression and sync the date before the POST
+            if (calcApi) {
+                evt.detail.parameters["amount"] = calcApi.finalAmount();
             }
-            // Round cleanly to 2 decimal places
-            return (Math.round(res * 100) / 100).toString();
-        }
-
-        document.querySelectorAll(".calc-btn").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const val = btn.dataset.val;
-
-                // Equals (=)
-                if (val === "=") {
-                    if (num1 !== "" && op !== "" && num2 !== "") {
-                        num1 = evaluate(num1, op, num2);
-                        op = "";
-                        num2 = "";
-                        updateDisplay();
-                    }
-                    return;
-                }
-
-                // Operators (+, -, *, /)
-                if (["+", "-", "*", "/"].includes(val)) {
-                    if (num1 === "") {
-                        if (val === "-") {
-                            num1 = "-";
-                            updateDisplay();
-                        }
-                        return;
-                    }
-
-                    if (op !== "" && num2 !== "") {
-                        // Evaluate previous operation immediately before applying new operator
-                        num1 = evaluate(num1, op, num2);
-                        op = val;
-                        num2 = "";
-                    } else {
-                        op = val;
-                    }
-                    updateDisplay();
-                    return;
-                }
-
-                // Numbers & Decimal Point (0-9, .)
-                let target = op === "" ? "num1" : "num2";
-                let currentVal = target === "num1" ? num1 : num2;
-
-                // Prevent multiple decimal points
-                if (val === ".") {
-                    if (currentVal.includes(".")) return;
-                    if (currentVal === "") currentVal = "0";
-                }
-
-                // Max 2 decimal digits constraint
-                if (val >= "0" && val <= "9") {
-                    if (currentVal.includes(".")) {
-                        const parts = currentVal.split(".");
-                        if (parts[1] && parts[1].length >= 2) {
-                            return;
-                        }
-                    }
-                }
-
-                currentVal += val;
-
-                if (target === "num1") {
-                    num1 = currentVal;
-                } else {
-                    num2 = currentVal;
-                }
-                updateDisplay();
-            });
-        });
-
-        // Backspace button: single tap erases 1 character, press-and-hold clears everything
-        let holdTimer = null;
-        let isLongPress = false;
-        const HOLD_DURATION_MS = 500;
-
-        function eraseSingleChar() {
-            if (num2 !== "") {
-                num2 = num2.slice(0, -1);
-            } else if (op !== "") {
-                op = "";
-            } else if (num1 !== "") {
-                num1 = num1.slice(0, -1);
-            }
-            updateDisplay();
-        }
-
-        function clearAll() {
-            num1 = "";
-            op = "";
-            num2 = "";
-            updateDisplay();
-        }
-
-        backspaceBtn.addEventListener("pointerdown", (e) => {
-            if (e.button !== 0 && e.pointerType === "mouse") return;
-            isLongPress = false;
-            backspaceBtn.classList.add("is-pressed");
-
-            holdTimer = setTimeout(() => {
-                isLongPress = true;
-                clearAll();
-                // Subtle haptic pulse on supported mobile browsers
-                if (navigator.vibrate) {
-                    navigator.vibrate(30);
-                }
-            }, HOLD_DURATION_MS);
-        });
-
-        function endBackspacePress() {
-            clearTimeout(holdTimer);
-            backspaceBtn.classList.remove("is-pressed");
-        }
-
-        backspaceBtn.addEventListener("pointerup", () => {
-            endBackspacePress();
-            if (!isLongPress) {
-                eraseSingleChar();
+            if (dateApi) {
+                evt.detail.parameters["expense_date"] = dateApi.isoDate();
             }
         });
 
-        backspaceBtn.addEventListener("pointerleave", endBackspacePress);
-        backspaceBtn.addEventListener("pointercancel", endBackspacePress);
-
-        // Ensure final expression is evaluated & date is synced before HTMX POST
-        document.body.addEventListener("htmx:configRequest", (evt) => {
-            if (!evt.detail.elt.closest(".expense-container")) return;
-
-            if (num1 !== "" && op !== "" && num2 !== "") {
-                num1 = evaluate(num1, op, num2);
-                op = "";
-                num2 = "";
-                updateDisplay();
-            }
-            const finalVal = num1 !== "" ? num1 : "0";
-            evt.detail.parameters["amount"] = finalVal;
-            evt.detail.parameters["expense_date"] = hiddenIso.value;
-        });
-    })();
-    document.body.addEventListener("htmx:beforeRequest", function (evt) {
+        container.addEventListener("htmx:beforeRequest", (evt) => {
             const triggerEl = evt.detail.elt;
 
             // Only validate buttons/elements that submit #expense-form
-            if (!triggerEl || triggerEl.getAttribute("hx-include") !== "#expense-form") {
+            if (
+                !triggerEl ||
+                triggerEl.getAttribute("hx-include") !== "#expense-form"
+            ) {
                 return;
             }
 
-            const amountInput = document.getElementById("amount-input");
+            const amountInput = container.querySelector("#amount-input");
             if (!amountInput) return;
 
             const rawValue = amountInput.value.replace(/,/g, "").trim();
@@ -227,7 +60,8 @@
             if (isNaN(amount) || amount <= 0) {
                 evt.preventDefault();
 
-                const group = document.getElementById("amount-group") || amountInput;
+                const group =
+                    container.querySelector("#amount-group") || amountInput;
                 group.classList.remove("input-invalid-shake");
                 void group.offsetWidth;
                 group.classList.add("input-invalid-shake");
@@ -237,5 +71,240 @@
                 }, 800);
             }
         });
+
+        // 1. Date Picker & Formatting Logic
+        function initDatePicker(root) {
+            const dateInput = root.querySelector("#native-date-picker");
+            const dateBtn = root.querySelector("#date-display-btn");
+            const hiddenIso = root.querySelector("#expense_date_iso");
+            if (!dateInput || !dateBtn || !hiddenIso) {
+                throw new Error("date picker elements are missing");
+            }
+
+            function formatDisplayDate(dateObj) {
+                const weekday = dateObj.toLocaleDateString("en-US", {
+                    weekday: "long",
+                });
+                const day = dateObj.getDate();
+                const month = dateObj.toLocaleDateString("en-US", {
+                    month: "long",
+                });
+                return `${weekday}, ${day} ${month}`;
+            }
+
+            function toIsoDate(dateObj) {
+                const offset = dateObj.getTimezoneOffset();
+                const local = new Date(dateObj.getTime() - offset * 60 * 1000);
+                return local.toISOString().split("T")[0];
+            }
+
+            function parseIsoDate(value) {
+                const parsed = new Date(value + "T00:00:00");
+                return isNaN(parsed.getTime()) ? null : parsed;
+            }
+
+            function setDate(dateObj) {
+                const iso = toIsoDate(dateObj);
+                dateInput.value = iso;
+                hiddenIso.value = iso;
+                dateBtn.textContent = formatDisplayDate(dateObj);
+            }
+
+            // Default to today unless a valid date was already provided
+            setDate(parseIsoDate(hiddenIso.value) || new Date());
+
+            dateInput.addEventListener("change", function () {
+                // Cleared or invalid input: fall back to the last valid date
+                const selected = this.value ? parseIsoDate(this.value) : null;
+                if (!selected) {
+                    this.value = hiddenIso.value;
+                    return;
+                }
+                setDate(selected);
+            });
+
+            return {
+                isoDate: () => hiddenIso.value,
+            };
+        }
+
+        // 2. Rolling Calculator & Amount Logic
+        function initCalculator(root) {
+            const amountInput = root.querySelector("#amount-input");
+            const backspaceBtn = root.querySelector("#backspace-btn");
+            if (!amountInput) {
+                throw new Error("amount input is missing");
+            }
+
+            let num1 = amountInput.value || "";
+            let op = "";
+            let num2 = "";
+
+            function updateDisplay() {
+                amountInput.value = num1 + op + num2;
+            }
+
+            function evaluate(n1, operator, n2) {
+                const a = parseFloat(n1);
+                const b = parseFloat(n2);
+                if (isNaN(a) || isNaN(b)) return n1;
+                let res = 0;
+                switch (operator) {
+                    case "+":
+                        res = a + b;
+                        break;
+                    case "-":
+                        res = a - b;
+                        break;
+                    case "*":
+                        res = a * b;
+                        break;
+                    case "/":
+                        res = b !== 0 ? a / b : a;
+                        break;
+                    default:
+                        return n1;
+                }
+                // Round cleanly to 2 decimal places
+                return (Math.round(res * 100) / 100).toString();
+            }
+
+            root.querySelectorAll(".calc-btn").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const val = btn.dataset.val;
+
+                    // Equals (=)
+                    if (val === "=") {
+                        if (num1 !== "" && op !== "" && num2 !== "") {
+                            num1 = evaluate(num1, op, num2);
+                            op = "";
+                            num2 = "";
+                            updateDisplay();
+                        }
+                        return;
+                    }
+
+                    // Operators (+, -, *, /)
+                    if (["+", "-", "*", "/"].includes(val)) {
+                        if (num1 === "") {
+                            if (val === "-") {
+                                num1 = "-";
+                                updateDisplay();
+                            }
+                            return;
+                        }
+
+                        if (op !== "" && num2 !== "") {
+                            // Evaluate previous operation immediately before applying new operator
+                            num1 = evaluate(num1, op, num2);
+                            op = val;
+                            num2 = "";
+                        } else {
+                            op = val;
+                        }
+                        updateDisplay();
+                        return;
+                    }
+
+                    // Numbers & Decimal Point (0-9, .)
+                    let target = op === "" ? "num1" : "num2";
+                    let currentVal = target === "num1" ? num1 : num2;
+
+                    // Prevent multiple decimal points
+                    if (val === ".") {
+                        if (currentVal.includes(".")) return;
+                        if (currentVal === "") currentVal = "0";
+                    }
+
+                    // Max 2 decimal digits constraint
+                    if (val >= "0" && val <= "9") {
+                        if (currentVal.includes(".")) {
+                            const parts = currentVal.split(".");
+                            if (parts[1] && parts[1].length >= 2) {
+                                return;
+                            }
+                        }
+                    }
+
+                    currentVal += val;
+
+                    if (target === "num1") {
+                        num1 = currentVal;
+                    } else {
+                        num2 = currentVal;
+                    }
+                    updateDisplay();
+                });
+            });
+
+            // Backspace button: single tap erases 1 character, press-and-hold clears everything
+            if (backspaceBtn) {
+                let holdTimer = null;
+                let isLongPress = false;
+                const HOLD_DURATION_MS = 500;
+
+                function eraseSingleChar() {
+                    if (num2 !== "") {
+                        num2 = num2.slice(0, -1);
+                    } else if (op !== "") {
+                        op = "";
+                    } else if (num1 !== "") {
+                        num1 = num1.slice(0, -1);
+                    }
+                    updateDisplay();
+                }
+
+                function clearAll() {
+                    num1 = "";
+                    op = "";
+                    num2 = "";
+                    updateDisplay();
+                }
+
+                function endBackspacePress() {
+                    clearTimeout(holdTimer);
+                    backspaceBtn.classList.remove("is-pressed");
+                }
+
+                backspaceBtn.addEventListener("pointerdown", (e) => {
+                    if (e.button !== 0 && e.pointerType === "mouse") return;
+                    isLongPress = false;
+                    backspaceBtn.classList.add("is-pressed");
+
+                    holdTimer = setTimeout(() => {
+                        isLongPress = true;
+                        clearAll();
+                        // Subtle haptic pulse on supported mobile browsers
+                        if (navigator.vibrate) {
+                            navigator.vibrate(30);
+                        }
+                    }, HOLD_DURATION_MS);
+                });
+
+                backspaceBtn.addEventListener("pointerup", () => {
+                    endBackspacePress();
+                    if (!isLongPress) {
+                        eraseSingleChar();
+                    }
+                });
+
+                backspaceBtn.addEventListener("pointerleave", endBackspacePress);
+                backspaceBtn.addEventListener("pointercancel", endBackspacePress);
+            }
+
+            return {
+                // Resolve a pending "a + b" expression and return the amount to submit
+                finalAmount: () => {
+                    if (num1 !== "" && op !== "" && num2 !== "") {
+                        num1 = evaluate(num1, op, num2);
+                        op = "";
+                        num2 = "";
+                        updateDisplay();
+                    }
+                    return num1 !== "" ? num1 : "0";
+                },
+            };
+        }
+    })();
 </script>
 {{end}}
