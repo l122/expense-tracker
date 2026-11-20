@@ -66,6 +66,13 @@ func (t *CreateExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 			http.Error(w, "Invalid date format (expected YYYY-MM-DD", http.StatusBadRequest)
 			return
 		}
+
+		now := time.Now()
+		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, parsedDate.Location())
+		if parsedDate.After(today) {
+			http.Error(w, "Date should not be greater than today", http.StatusBadRequest)
+			return
+		}
 		expenseDate = parsedDate
 	}
 
