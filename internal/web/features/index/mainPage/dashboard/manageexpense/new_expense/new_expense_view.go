@@ -1,4 +1,4 @@
-package shared
+package new_expense
 
 import (
 	"html/template"

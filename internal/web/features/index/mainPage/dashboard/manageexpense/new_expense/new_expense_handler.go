@@ -1,4 +1,4 @@
-package with_category
+package new_expense
 
 import (
 	"context"
@@ -9,29 +9,28 @@ import (
 
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/models"
-	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new-expense/shared"
 	"github.com/l122/expense-tracker/pkgs/categories"
 	"github.com/l122/expense-tracker/pkgs/httperrors"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/userid"
 )
 
-type NewExpenseByCategoryHandler struct {
+type NewExpenseHandler struct {
 	http.Handler
 
-	view *shared.NewExpenseView
+	view *NewExpenseView
 	repo database.Service
 }
 
-func NewNewExpenseByCategoryHandler(view *shared.NewExpenseView, repo database.Service) *NewExpenseByCategoryHandler {
-	return &NewExpenseByCategoryHandler{
+func NewNewExpenseHandler(view *NewExpenseView, repo database.Service) *NewExpenseHandler {
+	return &NewExpenseHandler{
 		view: view,
 		repo: repo,
 	}
 }
 
-func (t *NewExpenseByCategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	categoryId, err := categories.FromUrlPath(r)
+func (t *NewExpenseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	categoryId, err := categories.FromUrlQuery(r)
 	if err != nil || categoryId == 0 {
 		t.view.Index(w, models.ExpensePageData{
 			ReturnUrl: "/dashboard",

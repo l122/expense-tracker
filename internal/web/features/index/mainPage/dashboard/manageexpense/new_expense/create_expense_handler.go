@@ -1,4 +1,4 @@
-package manageexpense
+package new_expense
 
 import (
 	"context"

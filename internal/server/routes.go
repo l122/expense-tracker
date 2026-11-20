@@ -11,8 +11,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/categoryexpenses"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense"
 	expense "github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense"
-	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new-expense/empty"
-	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new-expense/shared"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new_expense"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/selectcategory"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user/deleteSelf"
@@ -67,8 +66,8 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /category/{id}/expenses", categoryexpenses.NewHandler(categoryexpenses.New(templates), s.db))
 	router.Handle("POST /category/{id}/expense/edit", manageexpense.NewEditExpenseHandler(expense.NewView(templates), s.db))
 	router.Handle("POST /category/select", selectcategory.NewChooseCategoryHandler(selectcategory.NewView(templates), s.db))
-	router.Handle("POST /expense", manageexpense.NewCreateExpenseHandler(s.db))
-	router.Handle("GET /expense/new", empty.NewNewExpenseHandler(shared.NewNewExpenseView(templates), s.db))
+	router.Handle("POST /expense", new_expense.NewCreateExpenseHandler(s.db))
+	router.Handle("GET /expense/new", new_expense.NewNewExpenseHandler(new_expense.NewNewExpenseView(templates), s.db))
 
 	return chainMiddlewares(
 		handler,
