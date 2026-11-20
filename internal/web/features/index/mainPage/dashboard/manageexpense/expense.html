@@ -49,7 +49,7 @@
             <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
 
             <!-- Hidden Category ID placed inside the form so hx-include captures it -->
-            {{if .Category}}
+            {{if and .Category (gt .Category.Id 0)}}
             <input type="hidden" name="category_id" value="{{.Category.Id}}">
             {{end}}
 

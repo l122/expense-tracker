@@ -10,7 +10,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/internal/domain"
-	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/choosecategory/models"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/selectcategory/models"
 	"github.com/l122/expense-tracker/pkgs/token"
 	"github.com/l122/expense-tracker/pkgs/userid"
 )

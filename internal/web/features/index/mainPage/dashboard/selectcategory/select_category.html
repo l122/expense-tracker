@@ -15,7 +15,7 @@
             <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary w-100 text-start"
-                hx-post="/expense/select-category"
+                hx-post="/category/{{.Id}}/expense/edit"
                 hx-include="#category-preserve-form"
                 hx-target="#main_page"
                 hx-swap="outerHTML"
@@ -30,13 +30,13 @@
     {{end}}
     <form id="category-preserve-form" style="display: none">
         <input type="hidden" name="amount" value="{{.Expense.Amount}}" />
-        <input type="hidden" name="note" value="{{.Expense.Notes}}" />
-        <input type="hidden" name="date" value="{{.Expense.ExpenseDate}}" />
+        <input type="hidden" name="notes" value="{{.Expense.Notes}}" />
         <input
             type="hidden"
-            name="parentReturnUrl"
-            value="{{.ParentReturnUrl}}"
+            name="expense_date"
+            value="{{.Expense.ExpenseDate}}"
         />
+        <input type="hidden" name="return_url" value="{{.ParentReturnUrl}}" />
     </form>
 </div>
 {{end}}
