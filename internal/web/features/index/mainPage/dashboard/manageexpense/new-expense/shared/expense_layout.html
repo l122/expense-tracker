@@ -1,0 +1,18 @@
+{{define "expense_layout"}}
+<div class="container py-3 expense-container" style="max-width: 480px">
+    <div>
+        {{template "return_from_new_expense_section" .}}
+        {{template "new_expense_form" .}}
+    </div>
+    <div class="pb-3">
+        {{template "calculator" .}}
+        <div class="d-grid mt-3">
+            {{if .Category}}
+            {{template "add_to_category_button" .Category.Name}}
+            {{else}}
+            {{template "choose_category_button" .}}
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}

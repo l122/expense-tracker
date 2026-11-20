@@ -1,13 +1,9 @@
-{{define "new_expense"}} {{template "new_expense_style"}}
-<div class="container py-3 expense-container" style="max-width: 480px">
-    <div>
-        {{template "return_from_new_expense_section"}} {{template
-        "new_expense_form"}}
-    </div>
-    <div class="pb-3">
-        {{template "calculator"}}
-        <div class="d-grid mt-3">{{template "choose_category_button"}}</div>
-    </div>
-</div>
+{{define "new_expense"}}
 
-{{template "expense-scripts"}} {{end}}
+{{template "new_expense_style"}}
+
+{{template "expense_layout"}}
+
+{{template "expense-scripts"}}
+
+{{end}}
