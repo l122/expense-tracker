@@ -1,0 +1,11 @@
+{{define "choose_category_button"}}
+<button
+    type="button"
+    class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
+    hx-post="/category/select"
+    hx-include="#expense-form"
+    hx-target="#main_page"
+>
+    Choose category
+</button>
+{{end}}

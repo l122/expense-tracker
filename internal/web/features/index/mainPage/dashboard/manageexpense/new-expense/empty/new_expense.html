@@ -80,17 +80,7 @@
     </div>
     <div class="pb-3">
         {{template "calculator"}}
-        <div class="d-grid mt-3">
-            <button
-                type="button"
-                class="btn btn-primary btn-lg py-3 fw-semibold shadow-sm"
-                hx-post="/category/select"
-                hx-include="#expense-form"
-                hx-target="#main_page"
-            >
-                Choose category
-            </button>
-        </div>
+        <div class="d-grid mt-3">{{template "choose_category_button"}}</div>
     </div>
 </div>
 
