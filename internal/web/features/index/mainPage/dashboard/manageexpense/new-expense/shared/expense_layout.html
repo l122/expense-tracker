@@ -8,6 +8,7 @@
         {{template "calculator" .}}
         <div class="d-grid mt-3">
             {{if .Category}}
+            <input type="hidden" name="category_id" form="expense-form" value="{{.Category.Id}}" />
             {{template "add_to_category_button" .Category.Name}}
             {{else}}
             {{template "choose_category_button" .}}
