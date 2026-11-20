@@ -65,11 +65,11 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("GET /category/{id}/expenses", categoryexpenses.NewHandler(categoryexpenses.New(templates), s.db))
 	router.Handle("POST /category/{id}/expense/edit", manageexpense.NewEditExpenseHandler(expense.NewView(templates), s.db))
 	router.Handle("POST /category/select", selectcategory.NewChooseCategoryHandler(selectcategory.NewView(templates), s.db))
-	router.Handle("GET /expense", manageexpense.NewViewExpenseHandler(expense.NewView(templates), s.db))
+	// router.Handle("GET /expense", manageexpense.NewViewExpenseHandler(expense.NewView(templates), s.db))
 	router.Handle("POST /expense", manageexpense.NewCreateExpenseHandler(s.db))
 
 	router.Handle("GET /category/{id}/expenses/new", manageexpense.NewNewExpenseByCategoryHandler(expense.NewNewExpenseByCategoryView(templates), s.db))
-	router.Handle("GET /expense/new", manageexpense.NewNewExpenseByCategoryHandler(expense.NewNewExpenseByCategoryView(templates), s.db))
+	router.Handle("GET /expense/new", manageexpense.NewNewExpenseHandler(expense.NewNewExpenseView(templates), s.db))
 
 	return chainMiddlewares(
 		handler,
