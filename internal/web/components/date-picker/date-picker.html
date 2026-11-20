@@ -23,4 +23,16 @@
         />
     </div>
 </div>
+
+<script>
+    (function () {
+        const picker = document.getElementById("native-date-picker");
+        if (picker) {
+            const today = new Date();
+            // Adjust for local timezone offset so toISOString() gives local YYYY-MM-DD
+            today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+            picker.max = today.toISOString().split("T")[0];
+        }
+    })();
+</script>
 {{end}}
