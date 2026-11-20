@@ -14,7 +14,9 @@
     }
     /* Visual feedback matching calculator buttons when tapped or held */
     #backspace-btn {
-        transition: background-color 0.1s ease, transform 0.08s ease;
+        transition:
+            background-color 0.1s ease,
+            transform 0.08s ease;
         user-select: none;
         -webkit-user-select: none;
     }
@@ -25,37 +27,38 @@
     }
 </style>
 
-<div class="container py-3 expense-container" style="max-width: 480px;">
+<div class="container py-3 expense-container" style="max-width: 480px">
     <div>
-        <div class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative">
-            <div>
-                {{template "return-button" .ReturnUrl}}
-            </div>
-            <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
+        <div
+            class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative"
+        >
+            <div>{{template "return-button" .ReturnUrl}}</div>
+            <h5
+                class="mb-0 fw-semibold position-absolute start-50 translate-middle-x"
+            >
                 New expense
             </h5>
-            <div style="width: 24px;"></div>
+            <div style="width: 24px"></div>
         </div>
 
         <form id="expense-form">
-            <input
-                type="hidden"
-                name="return_url"
-                value="{{.ReturnUrl}}"
-            />
-            <input type="hidden" id="expense_date_iso" name="expense_date" value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}">
-            <input type="hidden" name="category_id" value="{{.Category.Id}}">
+            <input type="hidden" name="return_url" value="{{.ReturnUrl}}" />
+            <input type="hidden" id="expense_date_iso" name="expense_date" />
+            <input type="hidden" name="category_id" value="{{.Category.Id}}" />
 
             <!-- Wrapper with even vertical spacing (gap-3) between Date Picker, Amount, and Note -->
             <div class="d-flex flex-column gap-3 mb-4">
                 <!-- Date Picker -->
-                <div class="mt-2">
-                    {{template "date-picker"}}
-                </div>
+                <div class="mt-2">{{template "date-picker"}}</div>
 
                 <!-- Amount Row: Currency + Decimal Input + Backspace Button -->
-                <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border">
-                    <span class="input-group-text bg-white fw-bold text-muted border-0 px-3">USD</span>
+                <div
+                    class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border"
+                >
+                    <span
+                        class="input-group-text bg-white fw-bold text-muted border-0 px-3"
+                        >USD</span
+                    >
                     <input
                         type="text"
                         inputmode="numeric"
@@ -64,7 +67,7 @@
                         class="form-control text-end fw-bold fs-3 border-0 bg-white"
                         placeholder="0"
                         readonly
-                    >
+                    />
                     <button
                         type="button"
                         id="backspace-btn"
@@ -82,7 +85,7 @@
                         name="notes"
                         class="form-control form-control-lg shadow-sm"
                         placeholder="Add a note..."
-                    >
+                    />
                 </div>
             </div>
         </form>
@@ -108,5 +111,4 @@
     </div>
 </div>
 
-{{template "expense-scripts"}}
-{{end}}
+{{template "expense-scripts"}} {{end}}
