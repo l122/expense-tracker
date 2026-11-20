@@ -20,6 +20,7 @@
             id="native-date-picker"
             class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
             style="pointer-events: none"
+            value="{{if not .Expense.ExpenseDate.IsZero}}{{.Expense.ExpenseDate.Format "2006-01-02"}}{{end}}"
         />
     </div>
 </div>
@@ -27,12 +28,37 @@
 <script>
     (function () {
         const picker = document.getElementById("native-date-picker");
-        if (picker) {
-            const today = new Date();
-            // Adjust for local timezone offset so toISOString() gives local YYYY-MM-DD
-            today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-            picker.max = today.toISOString().split("T")[0];
+        const displayBtn = document.getElementById("date-display-btn");
+        const hiddenIso = document.getElementById("expense_date_iso");
+        if (!picker || !displayBtn) return;
+
+        // 1. Set max date to today (local timezone)
+        const today = new Date();
+        today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+        const todayIso = today.toISOString().split("T");
+        picker.max = todayIso;
+
+        // 2. Format YYYY-MM-DD as "Sunday, 25 October" and sync hidden input
+        function syncDateUI(isoDate) {
+            if (!isoDate) return;
+            picker.value = isoDate;
+            if (hiddenIso) hiddenIso.value = isoDate;
+
+            const [y, m, d] = isoDate.split("-").map(Number);
+            const dateObj = new Date(y, m - 1, d);
+            displayBtn.textContent = dateObj.toLocaleDateString("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+            });
         }
+
+        // Use Go's value ("2026-10-25") if present, otherwise default to today
+        syncDateUI(picker.value || todayIso);
+
+        // Update whenever the user picks a different date
+        picker.addEventListener("change", (e) => syncDateUI(e.target.value));
     })();
 </script>
+
 {{end}}

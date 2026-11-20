@@ -10,7 +10,7 @@ import (
 	"github.com/l122/expense-tracker/internal/domain"
 )
 
-func FromHttpResponse(resp *http.Response) ([]domain.Expense, error) {
+func ManyFromHttpResponse(resp *http.Response) ([]domain.Expense, error) {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Failed to read body: %v\n", err)
@@ -21,6 +21,22 @@ func FromHttpResponse(resp *http.Response) ([]domain.Expense, error) {
 	if err := json.Unmarshal(bodyBytes, &result); err != nil {
 		fmt.Printf("Failed to parse JSON: %v\n", err)
 		return nil, err
+	}
+
+	return result, nil
+}
+
+func OneFromHttpResponse(resp *http.Response) (domain.Expense, error) {
+	var result domain.Expense
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Failed to read body: %v\n", err)
+		return result, err
+	}
+
+	if err := json.Unmarshal(bodyBytes, &result); err != nil {
+		fmt.Printf("Failed to parse JSON: %v\n", err)
+		return result, err
 	}
 
 	return result, nil

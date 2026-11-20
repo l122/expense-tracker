@@ -33,6 +33,7 @@ type Service interface {
 	GetCategoryByIdForUser(ctx context.Context, categoryId int, userId int) (domain.Category, error)
 	GetExpensesByCategoryIdAndUser(ctx context.Context, categoryId int, userId int) ([]domain.Expense, error)
 	GetExpensesByUser(ctx context.Context, userId int) ([]domain.Expense, error)
+	GetExpenseByIdForUser(ctx context.Context, expenseId int, userId int) (domain.Expense, error)
 	CreateExpense(ctx context.Context, expense domain.Expense) error
 
 	GetAuthClient() gotrue.Client

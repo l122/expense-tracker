@@ -3,7 +3,10 @@
     <input type="hidden" name="return_url" value="{{.ReturnUrl}}" />
     <input type="hidden" id="expense_date_iso" name="expense_date" />
     <div class="d-flex flex-column gap-3 mb-4">
-        <div class="mt-2">{{template "date-picker"}}</div>
+        {{if .Expense.Id}}
+            <input type="hidden" name="id" value="{{.Expense.Id}}">
+        {{end}}
+        <div class="mt-2">{{template "date-picker" .}}</div>
         <div
             id="amount-group"
             class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border"
@@ -19,6 +22,7 @@
                 name="amount"
                 class="form-control text-end fw-bold fs-3 border-0 bg-white"
                 placeholder="0"
+                value="{{if .Expense.Amount}}{{.Expense.Amount}}{{end}}"
                 readonly
             />
             <button
@@ -36,6 +40,7 @@
                 name="notes"
                 class="form-control form-control-lg shadow-sm"
                 placeholder="Add a note..."
+                value="{{.Expense.Notes}}"
             />
         </div>
     </div>

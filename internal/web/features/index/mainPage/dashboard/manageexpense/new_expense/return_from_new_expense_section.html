@@ -4,7 +4,11 @@
 >
     <div>{{template "return-button" .ReturnUrl}}</div>
     <h5 class="mb-0 fw-semibold position-absolute start-50 translate-middle-x">
-        New expense
+        {{if .Expense.Id}}
+            Edit expense
+        {{else}}
+            New expense
+        {{end}}
     </h5>
     <div style="width: 24px"></div>
 </div>

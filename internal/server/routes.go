@@ -10,6 +10,7 @@ import (
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/categoryexpenses"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new_expense"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/view_expense"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/selectcategory"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/user/deleteSelf"
@@ -65,6 +66,7 @@ func (s *Server) registerUserRoutes() http.Handler {
 	router.Handle("POST /category/select", selectcategory.NewChooseCategoryHandler(selectcategory.NewView(templates), s.db))
 	router.Handle("POST /expense", new_expense.NewCreateExpenseHandler(s.db))
 	router.Handle("GET /expense/new", new_expense.NewNewExpenseHandler(new_expense.NewNewExpenseView(templates), s.db))
+	router.Handle("GET /expense/{id}", view_expense.NewViewExpenseHandler(new_expense.NewNewExpenseView(templates), s.db))
 
 	return chainMiddlewares(
 		handler,

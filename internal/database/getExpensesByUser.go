@@ -31,7 +31,7 @@ func (s *service) GetExpensesByUser(ctx context.Context, userId int) ([]domain.E
 		return result, fmt.Errorf("Error response (Status %d): %s\n", resp.StatusCode, string(bodyBytes))
 	}
 
-	result, err = expenses.FromHttpResponse(resp)
+	result, err = expenses.ManyFromHttpResponse(resp)
 	if err != nil {
 		return result, err
 	}
