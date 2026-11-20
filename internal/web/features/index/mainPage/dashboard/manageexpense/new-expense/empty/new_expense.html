@@ -1,17 +1,7 @@
 {{define "new_expense"}} {{template "new_expense_style"}}
 <div class="container py-3 expense-container" style="max-width: 480px">
     <div>
-        <div
-            class="d-flex align-items-center justify-content-between pt-3 mb-4 position-relative"
-        >
-            <div>{{template "return-button" .ReturnUrl}}</div>
-            <h5
-                class="mb-0 fw-semibold position-absolute start-50 translate-middle-x"
-            >
-                New expense
-            </h5>
-            <div style="width: 24px"></div>
-        </div>
+        {{template "return_from_new_expense_section"}}
         <form id="expense-form">
             <input type="hidden" name="return_url" value="{{.ReturnUrl}}" />
             <input type="hidden" id="expense_date_iso" name="expense_date" />
