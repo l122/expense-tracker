@@ -9,6 +9,7 @@ import (
 
 	"github.com/l122/expense-tracker/internal/database"
 	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/models"
+	"github.com/l122/expense-tracker/internal/web/features/index/mainPage/dashboard/manageexpense/new-expense/shared"
 	"github.com/l122/expense-tracker/pkgs/categories"
 	"github.com/l122/expense-tracker/pkgs/httperrors"
 	"github.com/l122/expense-tracker/pkgs/token"
@@ -18,11 +19,11 @@ import (
 type NewExpenseByCategoryHandler struct {
 	http.Handler
 
-	view *NewExpenseByCategoryView
+	view *shared.NewExpenseView
 	repo database.Service
 }
 
-func NewNewExpenseByCategoryHandler(view *NewExpenseByCategoryView, repo database.Service) *NewExpenseByCategoryHandler {
+func NewNewExpenseByCategoryHandler(view *shared.NewExpenseView, repo database.Service) *NewExpenseByCategoryHandler {
 	return &NewExpenseByCategoryHandler{
 		view: view,
 		repo: repo,
@@ -30,6 +31,14 @@ func NewNewExpenseByCategoryHandler(view *NewExpenseByCategoryView, repo databas
 }
 
 func (t *NewExpenseByCategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	categoryId, err := categories.FromUrlPath(r)
+	if err != nil || categoryId == 0 {
+		t.view.Index(w, models.ExpensePageData{
+			ReturnUrl: "/dashboard",
+		})
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	accessToken := token.FromRequestOrPanic(r)
@@ -38,14 +47,6 @@ func (t *NewExpenseByCategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	userId, err := userid.FromRequest(r)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
-		return
-	}
-
-	categoryId, err := categories.FromUrlPath(r)
-	if err != nil || categoryId == 0 {
-		t.view.Index(w, models.ExpensePageData{
-			ReturnUrl: "/dashboard",
-		})
 		return
 	}
 
