@@ -210,5 +210,32 @@
             evt.detail.parameters["expense_date"] = hiddenIso.value;
         });
     })();
+    document.body.addEventListener("htmx:beforeRequest", function (evt) {
+            const triggerEl = evt.detail.elt;
+
+            // Only validate buttons/elements that submit #expense-form
+            if (!triggerEl || triggerEl.getAttribute("hx-include") !== "#expense-form") {
+                return;
+            }
+
+            const amountInput = document.getElementById("amount-input");
+            if (!amountInput) return;
+
+            const rawValue = amountInput.value.replace(/,/g, "").trim();
+            const amount = parseFloat(rawValue);
+
+            if (isNaN(amount) || amount <= 0) {
+                evt.preventDefault();
+
+                const group = document.getElementById("amount-group") || amountInput;
+                group.classList.remove("input-invalid-shake");
+                void group.offsetWidth;
+                group.classList.add("input-invalid-shake");
+
+                setTimeout(() => {
+                    group.classList.remove("input-invalid-shake");
+                }, 800);
+            }
+        });
 </script>
 {{end}}
