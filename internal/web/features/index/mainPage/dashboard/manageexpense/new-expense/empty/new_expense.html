@@ -1,29 +1,4 @@
-{{define "new_expense"}}
-<style>
-    #sandwich_menu {
-        display: none !important;
-    }
-    @media (max-width: 768px) {
-        .expense-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-    }
-    #backspace-btn {
-        transition:
-            background-color 0.1s ease,
-            transform 0.08s ease;
-        user-select: none;
-        -webkit-user-select: none;
-    }
-    #backspace-btn:active,
-    #backspace-btn.is-pressed {
-        background-color: #e9ecef !important;
-        transform: scale(0.95);
-    }
-</style>
+{{define "new_expense"}} {{template "new_expense_style"}}
 <div class="container py-3 expense-container" style="max-width: 480px">
     <div>
         <div
